@@ -4,8 +4,9 @@ React = require "react"
 Box = React.createClass
     displayName: 'Box',
     render: ->
-        React.createElement('div', {className: "Box"},
-        "Hello, world! I am a Box.")
+      <div className="Box">
+        Hello, world! I am a Boxxx.
+      </div>
 
 React.render(
     React.createElement(Box, null),

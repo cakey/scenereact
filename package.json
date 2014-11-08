@@ -13,6 +13,7 @@
     "url": "https://github.com/cakey/arena/issues"
   },
   "devDependencies": {
+    "coffee-reactify": "^2.0.0",
     "coffee-script": "~1.7.1",
     "coffeeify": "^0.7.0",
     "connect-livereload": "^0.4.0",
