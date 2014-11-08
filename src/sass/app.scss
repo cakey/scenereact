@@ -1,0 +1,14 @@
+$font-stack: "Century Gothic", sans-serif;
+
+body {
+  margin: 0px;
+  padding: 0px;
+  font-family: $font-stack;
+  background: #BB11BB;
+  overflow: hidden;
+}
+
+h1, h3 {
+  color: #FFF;
+  text-align: center;
+}

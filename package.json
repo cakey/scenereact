@@ -1,0 +1,47 @@
+{
+  "name": "arena",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cakey/arena.git"
+  },
+  "author": "Ben Shaw",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/cakey/arena/issues"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.7.1",
+    "coffeeify": "^0.7.0",
+    "connect-livereload": "^0.4.0",
+    "expect.js": "^0.3.1",
+    "express": "^4.8.2",
+    "gulp": "~3.8.7",
+    "gulp-browserify": "^0.5.0",
+    "gulp-clean": "~0.2.4",
+    "gulp-coffee": "~2.1.1",
+    "gulp-coffeelint": "^0.3.3",
+    "gulp-concat": "~2.1.7",
+    "gulp-jade": "~0.4.0",
+    "gulp-livereload": "^2.1.0",
+    "gulp-load-plugins": "^0.5.3",
+    "gulp-rename": "^1.2.0",
+    "gulp-sass": "~0.6.0",
+    "gulp-util": "~2.2.12",
+    "karma": "^0.12.21",
+    "karma-beep-reporter": "^0.1.4",
+    "karma-chrome-launcher": "^0.1.4",
+    "karma-mocha": "^0.1.7",
+    "karma-mocha-reporter": "^0.2.8",
+    "mocha": "^1.21.4"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1",
+    "node-uuid": "^1.4.1",
+    "react": "^0.12.0",
+    "rsvp": "^3.0.13",
+    "ws": "^0.4.32"
+  }
+}
