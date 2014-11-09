@@ -18,16 +18,16 @@ EventItem = React.createClass
     render: ->
         classes = React.addons.classSet
             'EventItem': true
-            'EventItemFocused': this.props.isFocused
+            'EventItemFocused': @props.isFocused
         <div className={classes}>
-            <p> Name: {this.props.event.name} </p>
-            <p> Desc: {this.props.event.desc} </p>
+            <p> Name: {@props.event.name} </p>
+            <p> Desc: {@props.event.desc} </p>
         </div>
 
 EventScrubber = React.createClass
     render: ->
         style =
-            top: "#{this.props.position*148}px" #lol
+            top: "#{@props.position*148}px" #lol
         return (
             <div className="EventScrubber">
                 <div className="EventScrubberDot" style={style}></div>
@@ -37,36 +37,36 @@ EventScroller = React.createClass
     threshold: 500
 
     getInitialState: ->
-        currentScroll: - this.threshold
+        currentScroll: - @threshold
 
     scrollHandler: (e) ->
-        if this.state.currentScroll + e.deltaY > this.threshold
-            if this.props.setEvent this.props.currentEvent + 1
-                this.setState
+        if @state.currentScroll + e.deltaY > @threshold
+            if @props.setEvent @props.currentEvent + 1
+                @setState
                     currentScroll: 0
             else
-                this.setState
-                    currentScroll: this.threshold
-        else if this.state.currentScroll + e.deltaY < -this.threshold
-            if this.props.setEvent this.props.currentEvent - 1
-                this.setState
+                @setState
+                    currentScroll: @threshold
+        else if @state.currentScroll + e.deltaY < -@threshold
+            if @props.setEvent @props.currentEvent - 1
+                @setState
                     currentScroll: 0
             else
-                this.setState
-                    currentScroll: -this.threshold
+                @setState
+                    currentScroll: -@threshold
         else
-            this.setState
-                currentScroll: this.state.currentScroll + e.deltaY
+            @setState
+                currentScroll: @state.currentScroll + e.deltaY
         e.preventDefault()
     render: ->
-        scrubberPosition = ((this.props.currentEvent) +
-        ((this.state.currentScroll + this.threshold) / (this.threshold * 2))) / this.props.events.length
+        scrubberPosition = ((@props.currentEvent) +
+        ((@state.currentScroll + @threshold) / (@threshold * 2))) / @props.events.length
 
-        cE = this.props.currentEvent
+        cE = @props.currentEvent
 
-        <div className="EventScroller" onWheel={this.scrollHandler}>
+        <div className="EventScroller" onWheel={@scrollHandler}>
             <div className="EventItems">
-                {this.props.events.map (event, i) ->
+                {@props.events.map (event, i) ->
                     <EventItem event={event} key={i} isFocused={cE==i} />
                 }
             </div>
@@ -88,10 +88,10 @@ EventPanel = React.createClass
         if eventNo  < 0
             eventNo = 0
             changes = false
-        else if eventNo  >= this.props.data.length
-            eventNo = this.props.data.length - 1
+        else if eventNo  >= @props.data.length
+            eventNo = @props.data.length - 1
             changes = false
-        this.setState
+        @setState
             currentEvent: eventNo
         return changes
 
@@ -99,9 +99,9 @@ EventPanel = React.createClass
         <div className="EventPanel">
             <MapWidget />
             <EventScroller
-                events={this.props.data}
-                currentEvent={this.state.currentEvent}
-                setEvent={this.setEvent} />
+                events={@props.data}
+                currentEvent={@state.currentEvent}
+                setEvent={@setEvent} />
         </div>
 
 React.render(
