@@ -1,17 +1,38 @@
 _ = require 'lodash'
 React = require "react/addons"
 
+GMap = require "./gmap.coffee"
+
 data = [
-    {
-        name: "Ben"
-        desc: "Test1"
-        id: 1
-    },
-    {
-        name: "John"
-        desc: "Test2"
-        id: 2
-    },
+    latlng: [51.408411,-0.15022]
+    zoom: 9
+    name: "London"
+    description: "Born and raised."
+    datetime: "1990-2009"
+,
+    latlng: [52.204,0.118902]
+    zoom: 14
+    name: "Cambridge"
+    description: "The University Years"
+    datetime: "2009-2013"
+,
+    latlng: [52.234259,0.153287]
+    zoom: 15
+    name: "Detour"
+    description: "Cheeky Gap Year..."
+    datetime: "2012"
+,
+    latlng: [37.735863,-122.414019]
+    zoom: 11
+    name: "SF"
+    description: "Venturing into the wild!"
+    datetime: "Sep 2013"
+,
+    latlng: [37.744975,-122.419062]
+    zoom: 17
+    name: "Bernal Mission"
+    description: "I find my home!"
+    datetime: "Nov 2013"
 ]
 
 EventItem = React.createClass
@@ -21,13 +42,13 @@ EventItem = React.createClass
             'EventItemFocused': @props.isFocused
         <div className={classes}>
             <p> Name: {@props.event.name} </p>
-            <p> Desc: {@props.event.desc} </p>
+            <p> Desc: {@props.event.description} </p>
         </div>
 
 EventScrubber = React.createClass
     render: ->
         style =
-            top: "#{@props.position*148}px" #lol
+            top: "#{@props.position*78*5}px" #lol
         return (
             <div className="EventScrubber">
                 <div className="EventScrubberDot" style={style}></div>
@@ -43,14 +64,14 @@ EventScroller = React.createClass
         if @state.currentScroll + e.deltaY > @threshold
             if @props.setEvent @props.currentEvent + 1
                 @setState
-                    currentScroll: 0
+                    currentScroll: -@threshold
             else
                 @setState
                     currentScroll: @threshold
         else if @state.currentScroll + e.deltaY < -@threshold
             if @props.setEvent @props.currentEvent - 1
                 @setState
-                    currentScroll: 0
+                    currentScroll: @threshold
             else
                 @setState
                     currentScroll: -@threshold
@@ -76,7 +97,11 @@ EventScroller = React.createClass
 MapWidget = React.createClass
     render: ->
         <div className="MapWidget">
-            I am a map MapWidget
+            <GMap
+                latitude={@props.event.latlng[0]}
+                longitude={@props.event.latlng[1]}
+                zoom={@props.event.zoom}
+            />
         </div>
 
 EventPanel = React.createClass
@@ -97,7 +122,7 @@ EventPanel = React.createClass
 
     render: ->
         <div className="EventPanel">
-            <MapWidget />
+            <MapWidget event={@props.data[@state.currentEvent]} />
             <EventScroller
                 events={@props.data}
                 currentEvent={@state.currentEvent}
