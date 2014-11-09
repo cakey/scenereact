@@ -28,23 +28,20 @@ Map = React.createClass
         # remove everything
         markers.forEach (marker) ->
             marker.setMap null
-            return
 
         @state.markers = []
 
         # add new markers
-        points.forEach ((point) ->
+        points.forEach (point) ->
             location = new google.maps.LatLng(point.latitude, point.longitude)
-            marker = new google.maps.Marker(
+            marker = new google.maps.Marker
                 position: location
                 map: map
                 title: point.label
-            )
+
             markers.push marker
-            return
-        )
+
         @setState markers: markers
-        return
 
     render: ->
         style =
@@ -59,15 +56,16 @@ Map = React.createClass
                 zoom: @props.zoom
                 center: new google.maps.LatLng(@props.latitude, @props.longitude)
                 mapTypeId: google.maps.MapTypeId.ROADMAP
-
+                disableDefaultUI: true
+                zoomControl: false
+                panControl: false
             map = new google.maps.Map(@getDOMNode(), mapOptions)
             @setState map: map
             @updateMarkers @props.points
-            return
+
         s = document.createElement("script")
         s.src = "https://maps.googleapis.com/maps/api/js?key=" + @props.gmaps_api_key + "&sensor=" + @props.gmaps_sensor + "&callback=mapLoaded"
         document.head.appendChild s
-        return
 
     # update markers if needed
     componentWillReceiveProps: (props) ->
@@ -78,6 +76,5 @@ Map = React.createClass
 
         @state.map.panTo center
         @state.map.setZoom zoom
-        return
 
 module.exports = Map
