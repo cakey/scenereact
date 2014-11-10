@@ -7,6 +7,8 @@ Mousetrap = require "br-mousetrap"
 
 makePoints = (startPoint, endPoint) ->
     # TODO: Will zoom out too far for close points.
+    # TODO: Weight should be based on before and after zoom, not just after.
+    # TODO: Don't smove in highest level zoom.
     maxZoom = 21
     minZoom = 3
 
@@ -16,7 +18,7 @@ makePoints = (startPoint, endPoint) ->
     zoomIn = endPoint.zoom - minZoom
 
     totalWeightedDistance = 0
-    for zoom in [startPoint.zoom .. minZoom]
+    for zoom in [startPoint.zoom-1 .. minZoom]
         console.log zoom
         totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
 
