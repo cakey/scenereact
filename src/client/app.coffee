@@ -38,11 +38,14 @@ data = [
 ]
 
 EventItem = React.createClass
+    onClick: ->
+        @props.setEvent @props.eventNo
+
     render: ->
         classes = React.addons.classSet
             'EventItem': true
             'EventItemFocused': @props.isFocused
-        <div className={classes}>
+        <div className={classes} onClick={@onClick}>
             <p> Name: {@props.event.name} </p>
             <p> Desc: {@props.event.description} </p>
         </div>
@@ -76,6 +79,11 @@ EventScroller = React.createClass
     getInitialState: ->
         currentScroll: - @threshold
 
+    setEvent: (e) ->
+        @props.setEvent e
+        @setState
+            currentScroll: 0
+
     scrollHandler: (e) ->
         wantedScroll = @state.currentScroll + e.deltaY
 
@@ -106,8 +114,8 @@ EventScroller = React.createClass
 
         <div className="EventScroller" onWheel={@scrollHandler}>
             <div className="EventItems">
-                {@props.events.map (event, i) ->
-                    <EventItem event={event} key={i} isFocused={cE==i} />
+                {@props.events.map (event, i) =>
+                    <EventItem event={event} key={i} eventNo={i} isFocused={cE==i} setEvent={@setEvent} />
                 }
             </div>
             <EventScrubber position={scrubberPosition} />
