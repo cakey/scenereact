@@ -53,7 +53,7 @@ EventItem = React.createClass
 EventScrubber = React.createClass
     render: ->
         style =
-            top: "#{@props.position*78*5}px" #lol
+            top: "#{@props.position*78*@props.eventCount}px" #lol
         return (
             <div className="EventScrubber">
                 <div className="EventScrubberDot" style={style}></div>
@@ -118,7 +118,7 @@ EventScroller = React.createClass
                     <EventItem event={event} key={i} eventNo={i} isFocused={cE==i} setEvent={@setEvent} />
                 }
             </div>
-            <EventScrubber position={scrubberPosition} />
+            <EventScrubber eventCount={@props.events.length} position={scrubberPosition} />
         </div>
 
 MapWidget = React.createClass
