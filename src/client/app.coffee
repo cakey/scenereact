@@ -77,23 +77,25 @@ EventScroller = React.createClass
         currentScroll: - @threshold
 
     scrollHandler: (e) ->
-        if @state.currentScroll + e.deltaY > @threshold
-            if @props.setEvent @props.currentEvent + 1
-                @setState
-                    currentScroll: -@threshold
+        wantedScroll = @state.currentScroll + e.deltaY
+
+        newScroll =
+            if wantedScroll > @threshold
+                if @props.setEvent @props.currentEvent + 1
+                    -@threshold
+                else
+                    @threshold
+            else if wantedScroll < -@threshold
+                if @props.setEvent @props.currentEvent - 1
+                    @threshold
+                else
+                    -@threshold
             else
-                @setState
-                    currentScroll: @threshold
-        else if @state.currentScroll + e.deltaY < -@threshold
-            if @props.setEvent @props.currentEvent - 1
-                @setState
-                    currentScroll: @threshold
-            else
-                @setState
-                    currentScroll: -@threshold
-        else
-            @setState
-                currentScroll: @state.currentScroll + e.deltaY
+                @state.currentScroll + e.deltaY
+
+        @setState
+            currentScroll: newScroll
+
         e.preventDefault()
 
     render: ->
