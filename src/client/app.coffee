@@ -5,37 +5,56 @@ GMap = require "./gmap.coffee"
 
 Mousetrap = require "br-mousetrap"
 
-data = [
-    latlng: [51.408411,-0.15022]
-    zoom: 9
-    name: "London"
-    description: "Born and raised."
-    datetime: "1990-2009"
-,
-    latlng: [52.204,0.118902]
-    zoom: 14
-    name: "Cambridge"
-    description: "The University Years"
-    datetime: "2009-2013"
-,
-    latlng: [52.234259,0.153287]
+makePoints = (startPoint, endPoint) ->
+    # TODO: Will zoom out too far for close points.
+    maxZoom = 21
+    minZoom = 3
+
+    curveFactor = 2.5 # Higher = zoom out quicker before panning
+
+    zoomOut = startPoint.zoom - minZoom
+    zoomIn = endPoint.zoom - minZoom
+
+    totalWeightedDistance = 0
+    for zoom in [startPoint.zoom .. minZoom]
+        console.log zoom
+        totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
+
+    for zoom in [endPoint.zoom .. minZoom]
+        console.log zoom
+        totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
+
+    points = [startPoint]
+    currentPoint = startPoint
+
+    for zoom in [startPoint.zoom-1 .. minZoom]
+        weight = Math.pow(curveFactor, (maxZoom - zoom)) / totalWeightedDistance
+        currentPoint =
+            weight: weight
+            zoom:zoom
+            latitude: currentPoint.latitude + (endPoint.latitude - startPoint.latitude) * weight
+            longitude: currentPoint.longitude + (endPoint.longitude - startPoint.longitude) * weight
+        points.push currentPoint
+
+    for zoom in [minZoom .. endPoint.zoom]
+        weight = Math.pow(curveFactor, (maxZoom - zoom)) / totalWeightedDistance
+        currentPoint =
+            weight: weight
+            zoom: zoom
+            latitude: currentPoint.latitude + (endPoint.latitude - startPoint.latitude) * weight
+            longitude: currentPoint.longitude + (endPoint.longitude - startPoint.longitude) * weight
+        points.push currentPoint
+
+    points
+
+data = makePoints
+    latitude: 52.234259
+    longitude: 0.153287
     zoom: 15
-    name: "Detour"
-    description: "Cheeky Gap Year..."
-    datetime: "2012"
 ,
-    latlng: [37.735863,-122.414019]
-    zoom: 11
-    name: "SF"
-    description: "Venturing into the wild!"
-    datetime: "Sep 2013"
-,
-    latlng: [37.744975,-122.419062]
-    zoom: 17
-    name: "Bernal Mission"
-    description: "I find my home!"
-    datetime: "Nov 2013"
-]
+    latitude: 37.744975
+    longitude: -122.419062
+    zoom: 18
 
 EventItem = React.createClass
     onClick: ->
@@ -125,8 +144,8 @@ MapWidget = React.createClass
     render: ->
         <div className="MapWidget">
             <GMap
-                latitude={@props.event.latlng[0]}
-                longitude={@props.event.latlng[1]}
+                latitude={@props.event.latitude}
+                longitude={@props.event.longitude}
                 zoom={@props.event.zoom}
             />
         </div>
