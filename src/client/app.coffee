@@ -3,6 +3,8 @@ React = require "react/addons"
 
 GMap = require "./gmap.coffee"
 
+Mousetrap = require "br-mousetrap"
+
 data = [
     latlng: [51.408411,-0.15022]
     zoom: 9
@@ -57,6 +59,20 @@ EventScrubber = React.createClass
 EventScroller = React.createClass
     threshold: 500
 
+    componentDidMount: ->
+        Mousetrap.bind ['down', 'right'], =>
+            @props.setEvent @props.currentEvent + 1
+            @setState
+                currentScroll: 0
+        Mousetrap.bind ['up', 'left'], =>
+            @props.setEvent @props.currentEvent - 1
+            @setState
+                currentScroll: 0
+
+    componentWillUnmount: ->
+        Mousetrap.unbind ['down', 'right']
+        Mousetrap.unbind ['up', 'left']
+
     getInitialState: ->
         currentScroll: - @threshold
 
@@ -79,6 +95,7 @@ EventScroller = React.createClass
             @setState
                 currentScroll: @state.currentScroll + e.deltaY
         e.preventDefault()
+
     render: ->
         scrubberPosition = ((@props.currentEvent) +
         ((@state.currentScroll + @threshold) / (@threshold * 2))) / @props.events.length
