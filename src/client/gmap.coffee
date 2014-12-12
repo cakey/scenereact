@@ -7,18 +7,21 @@ smoothPoints = (startPoint, endPoint) ->
     maxZoom = 21
     minZoom = 3
 
-    curveFactor = 2.5 # Higher = zoom out quicker before panning
+    curveFactor = 2 # Higher = zoom out quicker before panning
 
     zoomOut = startPoint.zoom - minZoom
     zoomIn = endPoint.zoom - minZoom
 
+    # TODO: should not just include dest zoom level,
+    # but also source zoom level for weighting
+
     totalWeightedDistance = 0
     for zoom in [startPoint.zoom-1 .. minZoom]
-        console.log zoom
         totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
 
-    for zoom in [endPoint.zoom .. minZoom]
-        console.log zoom
+
+    # Plus one so that the minZoom level only occurs once.
+    for zoom in [endPoint.zoom .. minZoom+1]
         totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
 
     points = [startPoint]
@@ -33,7 +36,7 @@ smoothPoints = (startPoint, endPoint) ->
             longitude: currentPoint.longitude + (endPoint.longitude - startPoint.longitude) * weight
         points.push currentPoint
 
-    for zoom in [minZoom .. endPoint.zoom]
+    for zoom in [minZoom+1 .. endPoint.zoom]
         weight = Math.pow(curveFactor, (maxZoom - zoom)) / totalWeightedDistance
         currentPoint =
             weight: weight
@@ -97,6 +100,7 @@ Map = React.createClass
 
     componentDidMount: ->
         window.mapLoaded = =>
+            @prevView = @props.view
             mapOptions =
                 zoom: @props.view.zoom
                 center: new google.maps.LatLng(@props.view.latitude, @props.view.longitude)
@@ -116,10 +120,22 @@ Map = React.createClass
     componentWillReceiveProps: (props) ->
         @updateMarkers props.points  if props.points
 
-        center = new google.maps.LatLng(props.view.latitude, props.view.longitude)
-        zoom = props.view.zoom
+        intermediatePoints = smoothPoints @prevView, props.view
 
-        @state.map.panTo center
-        @state.map.setZoom zoom
+        console.table intermediatePoints
+
+        # TODO: deal with multiple queued animations
+        for point, i in intermediatePoints
+            sT = (point, i) =>
+                setTimeout (=>
+                    center = new google.maps.LatLng(point.latitude, point.longitude)
+                    zoom = point.zoom
+                    @state.map.panTo center
+                    @state.map.setZoom zoom
+                    @prevView = point
+                ), i * 140
+            sT point, i
+
+        @prevView = props.view
 
 module.exports = Map
