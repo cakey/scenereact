@@ -5,58 +5,19 @@ GMap = require "./gmap.coffee"
 
 Mousetrap = require "br-mousetrap"
 
-makePoints = (startPoint, endPoint) ->
-    # TODO: Will zoom out too far for close points.
-    # TODO: Weight should be based on before and after zoom, not just after.
-    # TODO: Don't smove in highest level zoom.
-    maxZoom = 21
-    minZoom = 3
-
-    curveFactor = 2.5 # Higher = zoom out quicker before panning
-
-    zoomOut = startPoint.zoom - minZoom
-    zoomIn = endPoint.zoom - minZoom
-
-    totalWeightedDistance = 0
-    for zoom in [startPoint.zoom-1 .. minZoom]
-        console.log zoom
-        totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
-
-    for zoom in [endPoint.zoom .. minZoom]
-        console.log zoom
-        totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
-
-    points = [startPoint]
-    currentPoint = startPoint
-
-    for zoom in [startPoint.zoom-1 .. minZoom]
-        weight = Math.pow(curveFactor, (maxZoom - zoom)) / totalWeightedDistance
-        currentPoint =
-            weight: weight
-            zoom:zoom
-            latitude: currentPoint.latitude + (endPoint.latitude - startPoint.latitude) * weight
-            longitude: currentPoint.longitude + (endPoint.longitude - startPoint.longitude) * weight
-        points.push currentPoint
-
-    for zoom in [minZoom .. endPoint.zoom]
-        weight = Math.pow(curveFactor, (maxZoom - zoom)) / totalWeightedDistance
-        currentPoint =
-            weight: weight
-            zoom: zoom
-            latitude: currentPoint.latitude + (endPoint.latitude - startPoint.latitude) * weight
-            longitude: currentPoint.longitude + (endPoint.longitude - startPoint.longitude) * weight
-        points.push currentPoint
-
-    points
-
-data = makePoints
+data = [
     latitude: 52.234259
     longitude: 0.153287
     zoom: 15
+    name: "Cambridge"
+    description: "University"
 ,
     latitude: 37.744975
     longitude: -122.419062
     zoom: 18
+    name: "San Francisco"
+    description: "Work"
+]
 
 EventItem = React.createClass
     onClick: ->
@@ -146,9 +107,7 @@ MapWidget = React.createClass
     render: ->
         <div className="MapWidget">
             <GMap
-                latitude={@props.event.latitude}
-                longitude={@props.event.longitude}
-                zoom={@props.event.zoom}
+                view={@props.event}
             />
         </div>
 
