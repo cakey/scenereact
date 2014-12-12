@@ -14,7 +14,7 @@ data = [
 ,
     latitude: 37.744975
     longitude: -122.419062
-    zoom: 18
+    zoom: 17
     name: "San Francisco"
     description: "Work"
 ]

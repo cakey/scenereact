@@ -1,48 +1,41 @@
+_ = require 'lodash'
+
 React = require "react/addons"
 
 smoothPoints = (startPoint, endPoint) ->
     # TODO: Will zoom out too far for close points.
-    # TODO: Weight should be based on before and after zoom, not just after.
-    # TODO: Don't smove in highest level zoom.
     maxZoom = 21
     minZoom = 3
 
-    curveFactor = 2 # Higher = zoom out quicker before panning
+    curveFactor = 2.4 # Higher = zoom out quicker before panning
 
-    zoomOut = startPoint.zoom - minZoom
-    zoomIn = endPoint.zoom - minZoom
+    # first collect which zoom levels we are interested in (includes source)
 
-    # TODO: should not just include dest zoom level,
-    # but also source zoom level for weighting
+    zooms = [startPoint.zoom-1 .. minZoom].concat [minZoom+1 .. endPoint.zoom]
 
+    transitions = (_.zip zooms, zooms[1..])[..zooms.length - 2]
+
+    # calculate total weight to normalise again
     totalWeightedDistance = 0
-    for zoom in [startPoint.zoom-1 .. minZoom]
-        totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
+    for t in transitions
+        avgZoom = (t[0] + t[1]) / 2
+        totalWeightedDistance += Math.pow curveFactor, maxZoom - avgZoom
 
-
-    # Plus one so that the minZoom level only occurs once.
-    for zoom in [endPoint.zoom .. minZoom+1]
-        totalWeightedDistance += Math.pow curveFactor, (maxZoom - zoom)
-
-    points = [startPoint]
+    points = []
     currentPoint = startPoint
 
-    for zoom in [startPoint.zoom-1 .. minZoom]
-        weight = Math.pow(curveFactor, (maxZoom - zoom)) / totalWeightedDistance
-        currentPoint =
-            weight: weight
-            zoom:zoom
-            latitude: currentPoint.latitude + (endPoint.latitude - startPoint.latitude) * weight
-            longitude: currentPoint.longitude + (endPoint.longitude - startPoint.longitude) * weight
-        points.push currentPoint
+    totalLatDist = endPoint.latitude - startPoint.latitude
+    totalLongDist = endPoint.longitude - startPoint.longitude
 
-    for zoom in [minZoom+1 .. endPoint.zoom]
-        weight = Math.pow(curveFactor, (maxZoom - zoom)) / totalWeightedDistance
+    # generate intermediate points using weighting
+    for t in transitions
+        avgZoom = (t[0] + t[1]) / 2
+        weight = Math.pow(curveFactor, maxZoom - avgZoom) / totalWeightedDistance
         currentPoint =
             weight: weight
-            zoom: zoom
-            latitude: currentPoint.latitude + (endPoint.latitude - startPoint.latitude) * weight
-            longitude: currentPoint.longitude + (endPoint.longitude - startPoint.longitude) * weight
+            zoom:t[1]
+            latitude: currentPoint.latitude + totalLatDist * weight
+            longitude: currentPoint.longitude + totalLongDist * weight
         points.push currentPoint
 
     points
@@ -133,7 +126,7 @@ Map = React.createClass
                     @state.map.panTo center
                     @state.map.setZoom zoom
                     @prevView = point
-                ), i * 140
+                ), i * 150
             sT point, i
 
         @prevView = props.view
