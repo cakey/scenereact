@@ -5,13 +5,13 @@ React = require "react/addons"
 smoothPoints = (startPoint, endPoint) ->
     # TODO: Will zoom out too far for close points.
     maxZoom = 21
-    minZoom = 3
+    minZoom = 4
 
-    curveFactor = 2.4 # Higher = zoom out quicker before panning
+    curveFactor = 30 # Higher = zoom out quicker before panning
 
     # first collect which zoom levels we are interested in (includes source)
 
-    zooms = [startPoint.zoom-1 .. minZoom].concat [minZoom+1 .. endPoint.zoom]
+    zooms = [startPoint.zoom .. minZoom].concat([minZoom, minZoom, minZoom]).concat [minZoom .. endPoint.zoom]
 
     transitions = (_.zip zooms, zooms[1..])[..zooms.length - 2]
 
