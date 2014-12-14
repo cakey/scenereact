@@ -3,15 +3,24 @@ _ = require 'lodash'
 React = require "react/addons"
 
 smoothPoints = (startPoint, endPoint) ->
-    # TODO: Will zoom out too far for close points.
-    maxZoom = 21
-    minZoom = 4
+    totalLatDist = endPoint.latitude - startPoint.latitude
+    totalLongDist = endPoint.longitude - startPoint.longitude
 
-    curveFactor = 30 # Higher = zoom out quicker before panning
+    totalDist = Math.sqrt (Math.pow(totalLatDist, 2) + Math.pow(totalLongDist, 2))
+
+    # Calculate minZoom for close together points.
+    logDist = Math.log2 totalDist
+    minZoom = Math.min(
+        Math.max(4, 9 - (Math.round logDist)),
+        Math.min(startPoint.zoom, endPoint.zoom))
+
+    maxZoom = 21
+
+    curveFactor = 16 # Higher = zoom out quicker before panning
 
     # first collect which zoom levels we are interested in (includes source)
 
-    zooms = [startPoint.zoom .. minZoom].concat([minZoom, minZoom, minZoom]).concat [minZoom .. endPoint.zoom]
+    zooms = [startPoint.zoom .. minZoom].concat([minZoom, minZoom]).concat [minZoom .. endPoint.zoom]
 
     transitions = (_.zip zooms, zooms[1..])[..zooms.length - 2]
 
@@ -19,18 +28,15 @@ smoothPoints = (startPoint, endPoint) ->
     totalWeightedDistance = 0
     for t in transitions
         avgZoom = (t[0] + t[1]) / 2
-        totalWeightedDistance += Math.pow curveFactor, maxZoom - avgZoom
+        totalWeightedDistance += Math.pow (maxZoom - avgZoom), curveFactor
 
     points = []
     currentPoint = startPoint
 
-    totalLatDist = endPoint.latitude - startPoint.latitude
-    totalLongDist = endPoint.longitude - startPoint.longitude
-
     # generate intermediate points using weighting
     for t in transitions
         avgZoom = (t[0] + t[1]) / 2
-        weight = Math.pow(curveFactor, maxZoom - avgZoom) / totalWeightedDistance
+        weight = Math.pow((maxZoom - avgZoom), curveFactor) / totalWeightedDistance
         currentPoint =
             weight: weight
             zoom:t[1]
@@ -114,8 +120,6 @@ Map = React.createClass
         @updateMarkers props.points  if props.points
 
         intermediatePoints = smoothPoints @prevView, props.view
-
-        console.table intermediatePoints
 
         # TODO: deal with multiple queued animations
         for point, i in intermediatePoints
