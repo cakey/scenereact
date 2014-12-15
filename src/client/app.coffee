@@ -12,6 +12,12 @@ data = [
     name: "Cambridge"
     description: "University"
 ,
+    zoom: 9,
+    latitude: 37.559267971339345
+    longitude: -122.28022291183471
+    name: "SILICON VALLEY"
+    description: "ok?"
+,
     latitude: 37.793
     longitude: -122.395
     zoom: 16
@@ -144,5 +150,5 @@ EventPanel = React.createClass
 
 React.render(
     <EventPanel data={data} />
-    document.getElementById('content')
+    document.getElementById 'content'
 )

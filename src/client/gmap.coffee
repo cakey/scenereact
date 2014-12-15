@@ -11,7 +11,7 @@ smoothPoints = (startPoint, endPoint) ->
     # Calculate minZoom for close together points.
     logDist = Math.log2 totalDist
     minZoom = Math.min(
-        Math.max(4, 9 - (Math.round logDist)),
+        Math.max(4, 10 - (Math.round logDist)),
         Math.min(startPoint.zoom, endPoint.zoom))
 
     maxZoom = 21
@@ -67,6 +67,14 @@ Map = React.createClass
         gmaps_sensor: false
 
 
+    getPoint: ->
+        center = @state.map.getCenter()
+        return {
+            zoom: @state.map.getZoom()
+            latitude: center.lat()
+            longitude: center.lng()
+        }
+
     # update geo-encoded markers
     updateMarkers: (points) ->
         markers = @state.markers
@@ -98,6 +106,7 @@ Map = React.createClass
         <div style={style}></div>
 
     componentDidMount: ->
+        window.getPoint = @getPoint
         window.mapLoaded = =>
             @prevView = @props.view
             mapOptions =
