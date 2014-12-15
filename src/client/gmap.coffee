@@ -53,7 +53,6 @@ Map = React.createClass
         map: null
         markers: []
 
-
     # set some default values
     getDefaultProps: ->
         view:
@@ -107,6 +106,9 @@ Map = React.createClass
 
     componentDidMount: ->
         window.getPoint = @getPoint
+
+        @timeoutIds = [] # maybe should be state?
+
         window.mapLoaded = =>
             @prevView = @props.view
             mapOptions =
@@ -124,8 +126,15 @@ Map = React.createClass
         s.src = "https://maps.googleapis.com/maps/api/js?key=" + @props.gmaps_api_key + "&sensor=" + @props.gmaps_sensor + "&callback=mapLoaded"
         document.head.appendChild s
 
+    clearTimeouts: ->
+        for timeoutId in @timeoutIds
+            clearTimeout timeoutId
+
+        @timeoutIds = []
+
     # update markers if needed
     componentWillReceiveProps: (props) ->
+        @clearTimeouts()
         @updateMarkers props.points  if props.points
 
         intermediatePoints = smoothPoints @prevView, props.view
@@ -133,13 +142,15 @@ Map = React.createClass
         # TODO: deal with multiple queued animations
         for point, i in intermediatePoints
             sT = (point, i) =>
-                setTimeout (=>
+                timeoutId = setTimeout (=>
                     center = new google.maps.LatLng(point.latitude, point.longitude)
                     zoom = point.zoom
+                    # Maybe triggering some sort of onStateChange is better?
                     @state.map.panTo center
                     @state.map.setZoom zoom
                     @prevView = point
                 ), i * 150
+                @timeoutIds.push timeoutId
             sT point, i
 
         @prevView = props.view
