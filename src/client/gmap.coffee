@@ -38,7 +38,6 @@ smoothPoints = (startPoint, endPoint) ->
         avgZoom = (t[0] + t[1]) / 2
         weight = Math.pow((maxZoom - avgZoom), curveFactor) / totalWeightedDistance
         currentPoint =
-            weight: weight
             zoom:t[1]
             latitude: currentPoint.latitude + totalLatDist * weight
             longitude: currentPoint.longitude + totalLongDist * weight
@@ -110,7 +109,6 @@ Map = React.createClass
         @timeoutIds = [] # maybe should be state?
 
         window.mapLoaded = =>
-            @prevView = @props.view
             mapOptions =
                 zoom: @props.view.zoom
                 center: new google.maps.LatLng(@props.view.latitude, @props.view.longitude)
@@ -132,14 +130,18 @@ Map = React.createClass
 
         @timeoutIds = []
 
+    currentView: ->
+        latitude: @state.map.getCenter().lat()
+        longitude: @state.map.getCenter().lng()
+        zoom: @state.map.getZoom()
+
     # update markers if needed
     componentWillReceiveProps: (props) ->
         @clearTimeouts()
-        @updateMarkers props.points  if props.points
+        @updateMarkers props.points if props.points
 
-        intermediatePoints = smoothPoints @prevView, props.view
+        intermediatePoints = smoothPoints @currentView(), props.view
 
-        # TODO: deal with multiple queued animations
         for point, i in intermediatePoints
             sT = (point, i) =>
                 timeoutId = setTimeout (=>
@@ -148,7 +150,6 @@ Map = React.createClass
                     # Maybe triggering some sort of onStateChange is better?
                     @state.map.panTo center
                     @state.map.setZoom zoom
-                    @prevView = point
                 ), i * 150
                 @timeoutIds.push timeoutId
             sT point, i

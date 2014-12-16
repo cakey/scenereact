@@ -29,6 +29,12 @@ data = [
     zoom: 17
     name: "San Francisco"
     description: "Home"
+,
+    latitude: 39.083742
+    longitude: -119.973214
+    zoom: 11
+    name: "Lake Tahoe"
+    description: "skii"
 ]
 
 EventItem = React.createClass
