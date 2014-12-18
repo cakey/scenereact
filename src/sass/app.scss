@@ -1,5 +1,15 @@
 $font-stack: "Century Gothic", sans-serif;
 
+@mixin no-user-select() {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
 body {
     margin: 0px;
     padding: 0px;
@@ -43,6 +53,7 @@ h1, h3 {
     background: #e3e3e3;
     box-shadow: 0px 0px 1px #999;
     display: block;
+    position: relative;
 
 }
 
@@ -55,7 +66,7 @@ h1, h3 {
 .EventPanel {
     width: 100%;
     height: 100vh;
-    padding: 30px;
+    padding: 20px;
     box-sizing: border-box;
 
 }
@@ -68,4 +79,61 @@ h1, h3 {
     float: left;
     width: 60%;
     height: 100%;
+}
+
+@mixin toggleEditButton() {
+    position: fixed;
+    border-radius: 50px;
+    bottom: 0px;
+    right: 15px;
+    white-space: nowrap;
+    text-align: center;
+    margin: 1em 0;
+}
+
+
+#toggleEditButtonfalse {
+    width: 50px;
+    height: 50px;
+    background: #e3e3e3;
+    box-shadow: 0px 0px 1px #999;
+    @include toggleEditButton();
+    @include no-user-select();
+}
+
+#toggleEditButtontrue {
+    width: 60px;
+    height: 60px;
+    background: #ffffff;
+    box-shadow: 0px 0px 10px #9d9;
+    @include toggleEditButton();
+    @include no-user-select();
+}
+
+
+#toggleEditImage {
+    height: 24px;
+    width: 24px;
+    max-width: 50px;
+    max-height: 50px;
+    vertical-align: middle;
+}
+
+.helper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.deleteItem {
+    height: 10px;
+    width: 10px;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+.deleteItem:hover {
+    height: 20px;
+    width: 20px;
 }

@@ -47,6 +47,9 @@ EventItem = React.createClass
     onClick: ->
         @props.setEvent @props.eventNo
 
+    deleteEvent: ->
+        @props.deleteEvent @props.eventNo
+
     render: ->
         classes = React.addons.classSet
             'EventItem': true
@@ -54,6 +57,9 @@ EventItem = React.createClass
         <div className={classes} onClick={@onClick}>
             <p><b>{@props.event.name}</b></p>
             <p>{@props.event.description}</p>
+            {if @props.editable
+                <img src="assets/glyphicons-208-remove-2.png" className="deleteItem" onClick={@deleteEvent}/>
+            }
         </div>
 
 EventScrubber = React.createClass
@@ -89,6 +95,8 @@ EventScroller = React.createClass
         @props.setEvent e
         @setState
             currentScroll: 0
+    deleteEvent: (e) ->
+        @props.deleteEvent e
 
     scrollHandler: (e) ->
         wantedScroll = @state.currentScroll + e.deltaY
@@ -121,7 +129,13 @@ EventScroller = React.createClass
         <div className="EventScroller" onWheel={@scrollHandler}>
             <div className="EventItems">
                 {@props.events.map (event, i) =>
-                    <EventItem event={event} key={i} eventNo={i} isFocused={cE==i} setEvent={@setEvent} />
+                    <EventItem
+                        event={event} key={i} eventNo={i}
+                        isFocused={cE==i}
+                        setEvent={@setEvent}
+                        deleteEvent={@deleteEvent}
+                        editable={@props.editable}
+                    />
                 }
             </div>
             <EventScrubber eventCount={@props.events.length} position={scrubberPosition} />
@@ -138,26 +152,47 @@ MapWidget = React.createClass
 EventPanel = React.createClass
     getInitialState: ->
         currentEvent: 0
+        editable: false
+        data: _.cloneDeep @props.data
 
     setEvent: (eventNo) ->
         changes = true
         if eventNo  < 0
             eventNo = 0
             changes = false
-        else if eventNo  >= @props.data.length
-            eventNo = @props.data.length - 1
+        else if eventNo  >= @state.data.length
+            eventNo = @state.data.length - 1
             changes = false
         @setState
             currentEvent: eventNo
         return changes
 
+    deleteEvent: (eventNo) ->
+        newData = _.cloneDeep @state.data
+        newData.splice eventNo, 1
+        @setState
+            data: newData
+
+    toggleEditable: ->
+        @setState
+            editable: not @state.editable
+
     render: ->
+        editText = if @state.editable then "done" else "edit"
+        image = "assets/glyphicons-#{if @state.editable then "207-ok-2" else "31-pencil"}.png"
         <div className="EventPanel">
-            <MapWidget event={@props.data[@state.currentEvent]} />
+            <MapWidget event={@state.data[@state.currentEvent]} />
             <EventScroller
-                events={@props.data}
+                events={@state.data}
                 currentEvent={@state.currentEvent}
-                setEvent={@setEvent} />
+                setEvent={@setEvent}
+                deleteEvent={@deleteEvent}
+                editable={@state.editable}
+            />
+            <div id="toggleEditButton#{@state.editable}" onClick={@toggleEditable}>
+                <span className="helper"></span>
+                <img id="toggleEditImage" src={image} />
+            </div>
         </div>
 
 React.render(

@@ -39,14 +39,13 @@ gulp.task "jade", ->
         .pipe gulp.dest("./public")
         .pipe $.livereload()
 
-
 gulp.task "clean", ->
     gulp.src(["./public", "./gen"])
         .pipe $.clean()
 
 gulp.task "assets", ->
     gulp.src "./src/assets/**/*"
-        .pipe gulp.dest("./public")
+        .pipe gulp.dest("./public/assets")
         .pipe $.livereload()
 
 gulp.task "lint", ->
