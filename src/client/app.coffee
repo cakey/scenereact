@@ -32,9 +32,15 @@ data = [
 ,
     latitude: 39.083742
     longitude: -119.973214
-    zoom: 11
+    zoom: 10
     name: "Lake Tahoe"
     description: "skii"
+,
+    zoom: 14
+    latitude: 38.93952062454573
+    longitude: -119.90914139105224
+    name: "HEAVEN"
+    description: "LY"
 ]
 
 EventItem = React.createClass
@@ -46,8 +52,8 @@ EventItem = React.createClass
             'EventItem': true
             'EventItemFocused': @props.isFocused
         <div className={classes} onClick={@onClick}>
-            <p> Name: {@props.event.name} </p>
-            <p> Desc: {@props.event.description} </p>
+            <p><b>{@props.event.name}</b></p>
+            <p>{@props.event.description}</p>
         </div>
 
 EventScrubber = React.createClass
