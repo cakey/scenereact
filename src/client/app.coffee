@@ -50,13 +50,31 @@ EventItem = React.createClass
     deleteEvent: ->
         @props.deleteEvent @props.eventNo
 
+    changeName: (e, v) ->
+        @props.updateEvent @props.eventNo, name: e.target.value
+
+    changeDesc: (e, v) ->
+        @props.updateEvent @props.eventNo, description: e.target.value
+
     render: ->
         classes = React.addons.classSet
             'EventItem': true
             'EventItemFocused': @props.isFocused
+
+        values =
+            if @props.editable and @props.isFocused
+                <div>
+                    <input className="editable bold" value={@props.event.name} onChange={@changeName} />
+                    <input className="editable" value={@props.event.description} onChange={@changeDesc}  />
+                </div>
+            else
+                <div>
+                    <p><b>{@props.event.name}</b></p>
+                    <p>{@props.event.description}</p>
+                </div>
+
         <div className={classes} onClick={@onClick}>
-            <p><b>{@props.event.name}</b></p>
-            <p>{@props.event.description}</p>
+            {values}
             {if @props.editable
                 <img src="assets/glyphicons-208-remove-2.png" className="deleteItem" onClick={@deleteEvent}/>
             }
@@ -98,6 +116,9 @@ EventScroller = React.createClass
     deleteEvent: (e) ->
         @props.deleteEvent e
 
+    updateEvent: (eId, v) ->
+        @props.updateEvent eId, v
+
     scrollHandler: (e) ->
         wantedScroll = @state.currentScroll + e.deltaY
 
@@ -134,6 +155,7 @@ EventScroller = React.createClass
                         isFocused={cE==i}
                         setEvent={@setEvent}
                         deleteEvent={@deleteEvent}
+                        updateEvent={@updateEvent}
                         editable={@props.editable}
                     />
                 }
@@ -173,6 +195,13 @@ EventPanel = React.createClass
         @setState
             data: newData
 
+    updateEvent: (eventNo, obj) ->
+        newData = _.cloneDeep @state.data
+        for k, v of obj
+            newData[eventNo][k] = v
+        @setState
+            data: newData
+
     toggleEditable: ->
         @setState
             editable: not @state.editable
@@ -187,6 +216,7 @@ EventPanel = React.createClass
                 currentEvent={@state.currentEvent}
                 setEvent={@setEvent}
                 deleteEvent={@deleteEvent}
+                updateEvent={@updateEvent}
                 editable={@state.editable}
             />
             <div id="toggleEditButton#{@state.editable}" onClick={@toggleEditable}>

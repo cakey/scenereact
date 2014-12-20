@@ -3,6 +3,7 @@ _ = require 'lodash'
 React = require "react/addons"
 
 smoothPoints = (startPoint, endPoint) ->
+    #return [endPoint]
     totalLatDist = endPoint.latitude - startPoint.latitude
     totalLongDist = endPoint.longitude - startPoint.longitude
 
@@ -20,7 +21,7 @@ smoothPoints = (startPoint, endPoint) ->
 
     # first collect which zoom levels we are interested in (includes source)
 
-    zooms = [startPoint.zoom .. minZoom].concat([minZoom, minZoom]).concat [minZoom .. endPoint.zoom]
+    zooms = [startPoint.zoom .. minZoom].concat([minZoom, minZoom, minZoom, minZoom, minZoom]).concat [minZoom .. endPoint.zoom]
 
     transitions = (_.zip zooms, zooms[1..])[..zooms.length - 2]
 
@@ -150,7 +151,7 @@ Map = React.createClass
                     # Maybe triggering some sort of onStateChange is better?
                     @state.map.panTo center
                     @state.map.setZoom zoom
-                ), i * 150
+                ), i * 100
                 @timeoutIds.push timeoutId
             sT point, i
 
