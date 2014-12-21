@@ -41,8 +41,6 @@ h1, h3 {
 .EventItems {
     width: 90%;
     float: left;
-    background: #ffffff;
-
 }
 
 .EventItem {
@@ -54,6 +52,10 @@ h1, h3 {
     box-shadow: 0px 0px 1px #999;
     display: block;
     position: relative;
+}
+
+.EventItem:hover {
+    box-shadow: 0px 0px 10px #9d9;
 }
 
 .EventItemFocused {
@@ -96,16 +98,23 @@ h1, h3 {
     height: 100%;
 }
 
-@mixin toggleEditButton() {
-    position: fixed;
+%bigButton {
     border-radius: 50px;
-    bottom: 0px;
-    right: 15px;
     white-space: nowrap;
     text-align: center;
     margin: 1em 0;
 }
 
+%bigButton:hover {
+    box-shadow: 0px 0px 10px #9d9;
+}
+
+@mixin toggleEditButton() {
+    position: fixed;
+    bottom: 0px;
+    right: 15px;
+    @extend %bigButton;
+}
 
 #toggleEditButtonfalse {
     width: 50px;
@@ -125,13 +134,29 @@ h1, h3 {
     @include no-user-select();
 }
 
+#addItemButton {
+    width: 50px;
+    height: 50px;
+    background: #e3e3e3;
+    box-shadow: 0px 0px 1px #999;
+    @extend %bigButton;
+    @include no-user-select();
+}
 
-#toggleEditImage {
+%bigButtonImage {
     height: 24px;
     width: 24px;
     max-width: 50px;
     max-height: 50px;
     vertical-align: middle;
+}
+
+#addItemButtonImage {
+    @extend %bigButtonImage;
+}
+
+#toggleEditImage {
+    @extend %bigButtonImage;
 }
 
 .helper {

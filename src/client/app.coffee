@@ -1,7 +1,7 @@
 # TODO:
-# propagating the event methods seems a little ridiculous...
+# 1. propagating the event methods seems a little ridiculous...
 #   should set up an event system
-
+# 2. Pull out buttons to sub react components??
 
 _ = require 'lodash'
 React = require "react/addons"
@@ -143,6 +143,9 @@ EventScroller = React.createClass
     updateEvent: (eId, v) ->
         @props.updateEvent eId, v
 
+    addEvent: ->
+        @props.addEvent()
+
     scrollHandler: (e) ->
         wantedScroll = @state.currentScroll + e.deltaY
 
@@ -186,6 +189,13 @@ EventScroller = React.createClass
                         editable={@props.editable}
                     />
                 }
+                {
+                    if @props.editable
+                        <div id="addItemButton" onClick={@addEvent}>
+                            <span className="helper"></span>
+                            <img id="addItemButtonImage" src="assets/glyphicons-433-plus.png" />
+                        </div>
+                }
             </div>
             <EventScrubber eventCount={@props.events.length} position={scrubberPosition} />
         </div>
@@ -200,12 +210,24 @@ MapWidget = React.createClass
 
 EventPanel = React.createClass
     getInitialState: ->
-        currentEvent: 0
-        editable: false
-        data: _.cloneDeep @props.data
+        prevState = localStorage.getItem "sceneEventState"
+        console.log prevState
+        if prevState?
+            console.log "Found Saved Data!"
+            currentEvent: 0
+            editable: false
+            data: JSON.parse prevState
+        else
+            currentEvent: 0
+            editable: false
+            data: _.cloneDeep @props.defaultData
+
+    componentWillUpdate: ->
+        jsonState = JSON.stringify @state.data
+        console.log jsonState
+        localStorage.setItem "sceneEventState", jsonState
 
     setEvent: (eventNo) ->
-        console.log 'set', eventNo
         changes = true
         if eventNo  < 0
             eventNo = 0
@@ -233,7 +255,6 @@ EventPanel = React.createClass
     upEvent: (eventNo, obj) ->
         newData = _.cloneDeep @state.data
         newData.splice (eventNo - 1), 2, newData[eventNo], newData[eventNo-1]
-        console.log @state.currentEvent - 1
         @setState
             data: newData
             currentEvent: @state.currentEvent - 1
@@ -245,6 +266,15 @@ EventPanel = React.createClass
             data: newData
             currentEvent: @state.currentEvent + 1
 
+    addEvent: ->
+        newEvent = getPoint() # TODO: urghh
+        newEvent.name = "Copy of #{@state.data[@state.currentEvent].name}"
+        newEvent.description = "Describe me!"
+        newData = _.cloneDeep @state.data
+        newData.push newEvent
+        @setState
+            data: newData
+            currentEvent: newData.length - 1
 
     toggleEditable: ->
         @setState
@@ -263,6 +293,7 @@ EventPanel = React.createClass
                 updateEvent={@updateEvent}
                 upEvent={@upEvent}
                 downEvent={@downEvent}
+                addEvent={@addEvent}
                 editable={@state.editable}
             />
             <div id="toggleEditButton#{@state.editable}" onClick={@toggleEditable}>
@@ -272,6 +303,6 @@ EventPanel = React.createClass
         </div>
 
 React.render(
-    <EventPanel data={data} />
+    <EventPanel defaultData={data} />
     document.getElementById 'content'
 )
