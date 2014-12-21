@@ -1,3 +1,8 @@
+# TODO:
+# propagating the event methods seems a little ridiculous...
+#   should set up an event system
+
+
 _ = require 'lodash'
 React = require "react/addons"
 
@@ -50,6 +55,14 @@ EventItem = React.createClass
     deleteEvent: ->
         @props.deleteEvent @props.eventNo
 
+    upEvent: (e) ->
+        e.stopPropagation()
+        @props.upEvent @props.eventNo
+
+    downEvent: (e) ->
+        e.stopPropagation()
+        @props.downEvent @props.eventNo
+
     changeName: (e, v) ->
         @props.updateEvent @props.eventNo, name: e.target.value
 
@@ -66,6 +79,13 @@ EventItem = React.createClass
                 <div>
                     <input className="editable bold" value={@props.event.name} onChange={@changeName} />
                     <input className="editable" value={@props.event.description} onChange={@changeDesc}  />
+                    {if @props.eventNo > 0
+                        <img src="assets/glyphicons-214-up-arrow.png" className="upItemButton" onClick={@upEvent}/>
+                    }
+                    <img src="assets/glyphicons-208-remove-2.png" className="deleteItemButton" onClick={@deleteEvent}/>
+                    {if @props.eventNo < (@props.countEvents - 1)
+                        <img src="assets/glyphicons-213-down-arrow.png" className="downItemButton" onClick={@downEvent}/>
+                    }
                 </div>
             else
                 <div>
@@ -75,15 +95,12 @@ EventItem = React.createClass
 
         <div className={classes} onClick={@onClick}>
             {values}
-            {if @props.editable
-                <img src="assets/glyphicons-208-remove-2.png" className="deleteItem" onClick={@deleteEvent}/>
-            }
         </div>
 
 EventScrubber = React.createClass
     render: ->
         style =
-            top: "#{@props.position*78*@props.eventCount}px" #lol
+            top: "#{@props.position*79*@props.eventCount}px" #lol
         return (
             <div className="EventScrubber">
                 <div className="EventScrubberDot" style={style}></div>
@@ -113,6 +130,13 @@ EventScroller = React.createClass
         @props.setEvent e
         @setState
             currentScroll: 0
+
+    upEvent: (e) ->
+        @props.upEvent e
+
+    downEvent: (e) ->
+        @props.downEvent e
+
     deleteEvent: (e) ->
         @props.deleteEvent e
 
@@ -152,10 +176,13 @@ EventScroller = React.createClass
                 {@props.events.map (event, i) =>
                     <EventItem
                         event={event} key={i} eventNo={i}
+                        countEvents={@props.events.length}
                         isFocused={cE==i}
                         setEvent={@setEvent}
                         deleteEvent={@deleteEvent}
                         updateEvent={@updateEvent}
+                        downEvent={@downEvent}
+                        upEvent={@upEvent}
                         editable={@props.editable}
                     />
                 }
@@ -178,6 +205,7 @@ EventPanel = React.createClass
         data: _.cloneDeep @props.data
 
     setEvent: (eventNo) ->
+        console.log 'set', eventNo
         changes = true
         if eventNo  < 0
             eventNo = 0
@@ -202,6 +230,22 @@ EventPanel = React.createClass
         @setState
             data: newData
 
+    upEvent: (eventNo, obj) ->
+        newData = _.cloneDeep @state.data
+        newData.splice (eventNo - 1), 2, newData[eventNo], newData[eventNo-1]
+        console.log @state.currentEvent - 1
+        @setState
+            data: newData
+            currentEvent: @state.currentEvent - 1
+
+    downEvent: (eventNo, obj) ->
+        newData = _.cloneDeep @state.data
+        newData.splice eventNo, 2, newData[eventNo+1], newData[eventNo]
+        @setState
+            data: newData
+            currentEvent: @state.currentEvent + 1
+
+
     toggleEditable: ->
         @setState
             editable: not @state.editable
@@ -217,6 +261,8 @@ EventPanel = React.createClass
                 setEvent={@setEvent}
                 deleteEvent={@deleteEvent}
                 updateEvent={@updateEvent}
+                upEvent={@upEvent}
+                downEvent={@downEvent}
                 editable={@state.editable}
             />
             <div id="toggleEditButton#{@state.editable}" onClick={@toggleEditable}>

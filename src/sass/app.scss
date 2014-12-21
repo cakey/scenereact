@@ -9,7 +9,6 @@ $font-stack: "Century Gothic", sans-serif;
     user-select: none;
 }
 
-
 body {
     margin: 0px;
     padding: 0px;
@@ -47,7 +46,7 @@ h1, h3 {
 }
 
 .EventItem {
-    height: 77px;
+    height: 78px;
     padding: 1px 20px;
     margin-top: 1px;
     margin-bottom: 1px;
@@ -141,15 +140,43 @@ h1, h3 {
     vertical-align: middle;
 }
 
-.deleteItem {
+%itemButton {
     height: 10px;
     width: 10px;
     position: absolute;
-    top: 6px;
-    right: 6px;
+    right: 15px;
 }
 
-.deleteItem:hover {
+%itemButton:hover {
     height: 20px;
     width: 20px;
+    right: 10px;
+
+}
+
+.deleteItemButton {
+    top: 36px;
+    @extend %itemButton;
+}
+
+.deleteItemButton:hover {
+    top: 31px;
+}
+
+.upItemButton {
+    top: 9px;
+    @extend %itemButton;
+}
+
+.upItemButton:hover {
+    top: 4px;
+}
+
+.downItemButton {
+    top: 62px;
+    @extend %itemButton;
+}
+
+.downItemButton:hover {
+    top: 57px;
 }
