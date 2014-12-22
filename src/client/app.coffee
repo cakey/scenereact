@@ -302,6 +302,7 @@ EventPanel = React.createClass
             </div>
         </div>
 
+React.initializeTouchEvents true
 React.render(
     <EventPanel defaultData={data} />
     document.getElementById 'content'
