@@ -9,6 +9,14 @@ $font-stack: "Century Gothic", sans-serif;
     user-select: none;
 }
 
+@mixin vertical-align {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
 body {
     margin: 0px;
     padding: 0px;
@@ -26,17 +34,12 @@ h1, h3 {
 }
 
 .EventItems {
-    width: 90%;
+    width: 100%;
     float: left;
 }
 
 .EventItem {
-    height: 78px;
-    padding: 1px 20px;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    background: #e3e3e3;
-    box-shadow: 0px 0px 1px #999;
+    padding: 4px 20px;
     display: block;
     position: relative;
 }
@@ -48,7 +51,6 @@ h1, h3 {
 .EventItemFocused {
     background: #ffffff;
     box-shadow: 0px 0px 10px #9d9;
-
 }
 
 .editable {
@@ -57,9 +59,9 @@ h1, h3 {
     color: #666;
     font-size: 1em;
     font-family: $font-stack;
-    margin-top: 8px;
-    margin-bottom: -5px;
     margin-left: -6px;
+    margin-top: 6px;
+    margin-bottom: 6px;
     padding: 4px;
 }
 
@@ -70,19 +72,52 @@ h1, h3 {
 .EventPanel {
     width: 100%;
     height: 100vh;
-    padding: 20px;
     box-sizing: border-box;
 
 }
 .EventScroller {
     float: right;
-    width: 38%;
+    width: 40%;
 }
 .MapWidget {
     box-sizing: border-box;
     float: left;
-    width: 60%;
+    width: 50%;
     height: 100%;
+}
+
+.TimeLineWidget {
+    box-sizing: border-box;
+    float: left;
+    width: 10%;
+    height: 87%;
+    top: 5%;
+    position: relative;
+    text-align: middle;
+}
+
+.TimeLinePoint {
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    left: 50%;
+    margin-left: -16px;
+    border: 1px solid #888;
+    border-radius: 20px;
+    background: #eeeeee;
+
+}
+
+.TimeLineLine {
+    height: 100%;
+    width: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    //background: #888;
+    border: 1px dotted #888;
+    border-radius: 10px;
+
 }
 
 %bigButton {
@@ -101,6 +136,7 @@ h1, h3 {
     bottom: 0px;
     right: 15px;
     @extend %bigButton;
+    @include no-user-select();
 }
 
 #toggleEditButtonfalse {
@@ -109,7 +145,6 @@ h1, h3 {
     background: #e3e3e3;
     box-shadow: 0px 0px 1px #999;
     @include toggleEditButton();
-    @include no-user-select();
 }
 
 #toggleEditButtontrue {
@@ -118,7 +153,6 @@ h1, h3 {
     background: #ffffff;
     box-shadow: 0px 0px 10px #9d9;
     @include toggleEditButton();
-    @include no-user-select();
 }
 
 #addItemButton {
@@ -126,6 +160,7 @@ h1, h3 {
     height: 50px;
     background: #e3e3e3;
     box-shadow: 0px 0px 1px #999;
+    margin-left: 10px;
     @extend %bigButton;
     @include no-user-select();
 }
@@ -135,7 +170,7 @@ h1, h3 {
     width: 24px;
     max-width: 50px;
     max-height: 50px;
-    vertical-align: middle;
+    @include vertical-align();
 }
 
 #addItemButtonImage {
@@ -144,12 +179,6 @@ h1, h3 {
 
 #toggleEditImage {
     @extend %bigButtonImage;
-}
-
-.helper {
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
 }
 
 %itemButton {
@@ -167,12 +196,13 @@ h1, h3 {
 }
 
 .deleteItemButton {
-    top: 36px;
+    top: 50%;
+    margin-top: -5px;
     @extend %itemButton;
 }
 
 .deleteItemButton:hover {
-    top: 31px;
+    margin-top: -10px;
 }
 
 .upItemButton {
@@ -185,10 +215,10 @@ h1, h3 {
 }
 
 .downItemButton {
-    top: 62px;
+    bottom: 9px;
     @extend %itemButton;
 }
 
 .downItemButton:hover {
-    top: 57px;
+    bottom: 4px;
 }

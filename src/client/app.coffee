@@ -16,43 +16,7 @@ _m = require("mediator-js").Mediator
 
 mediator = new _m()
 
-data = [
-    latitude: 52.234259
-    longitude: 0.153287
-    zoom: 15
-    name: "Cambridge"
-    description: "University"
-,
-    zoom: 9,
-    latitude: 37.559267971339345
-    longitude: -122.28022291183471
-    name: "SILICON VALLEY"
-    description: "ok?"
-,
-    latitude: 37.793
-    longitude: -122.395
-    zoom: 16
-    name: "SFDC"
-    description: "Work"
-,
-    latitude: 37.744975
-    longitude: -122.419062
-    zoom: 17
-    name: "San Francisco"
-    description: "Home"
-,
-    latitude: 39.083742
-    longitude: -119.973214
-    zoom: 10
-    name: "Lake Tahoe"
-    description: "skii"
-,
-    zoom: 14
-    latitude: 38.93952062454573
-    longitude: -119.90914139105224
-    name: "HEAVEN"
-    description: "LY"
-]
+data = require("./defaultData.coffee").life
 
 EventItem = React.createClass
     onClick: (e) ->
@@ -86,7 +50,7 @@ EventItem = React.createClass
             if @props.editable and @props.isFocused
                 <div>
                     <input className="editable bold" value={@props.event.name} onChange={@changeName} />
-                    <input className="editable" value={@props.event.description} onChange={@changeDesc}  />
+                    <textarea className="editable" value={@props.event.description} onChange={@changeDesc}  />
                     {if @props.eventNo > 0
                         <img src="assets/glyphicons-214-up-arrow.png" className="upItemButton" onClick={@upEvent}/>
                     }
@@ -141,12 +105,28 @@ MapWidget = React.createClass
             />
         </div>
 
+TimeLineWidget = React.createClass
+    render: ->
+        <div className="TimeLineWidget">
+            <div className="TimeLineLine" ></div>
+                {@props.events.map (event, i) =>
+                    style =
+                        top: "#{((i / (@props.events.length-1)))*100}%"
+                        background: if @props.currentEvent == i then "#ccc" else "#eee"
+                    <div
+                        className="TimeLinePoint"
+                        key={i}
+                        style={style}
+                    />
+                }
+        </div>
+
 EventPanel = React.createClass
     getInitialState: ->
         prevState = localStorage.getItem "sceneEventState"
-        console.log prevState
         if prevState?
             console.log "Found Saved Data!"
+            console.log prevState
             currentEvent: 0
             editable: false
             data: JSON.parse prevState
@@ -236,6 +216,10 @@ EventPanel = React.createClass
         editText = if @state.editable then "done" else "edit"
         image = "assets/glyphicons-#{if @state.editable then "207-ok-2" else "31-pencil"}.png"
         <div className="EventPanel">
+            <TimeLineWidget
+                events={@state.data}
+                currentEvent={@state.currentEvent}
+            />
             <MapWidget event={@state.data[@state.currentEvent]} />
             <EventScroller
                 events={@state.data}
@@ -243,7 +227,6 @@ EventPanel = React.createClass
                 editable={@state.editable}
             />
             <div id="toggleEditButton#{@state.editable}" onClick={@toggleEditable}>
-                <span className="helper"></span>
                 <img id="toggleEditImage" src={image} />
             </div>
         </div>
