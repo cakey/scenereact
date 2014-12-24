@@ -2,6 +2,8 @@
 # 1. propagating the event methods seems a little ridiculous...
 #   should set up an event system
 # 2. Pull out buttons to sub react components??
+# 3. Re add smooth scrolling (state var?)
+# 4. Refactor methods in EventPanel
 
 _ = require 'lodash'
 React = require "react/addons"
@@ -9,6 +11,10 @@ React = require "react/addons"
 GMap = require "./gmap.coffee"
 
 Mousetrap = require "br-mousetrap"
+
+_m = require("mediator-js").Mediator
+
+mediator = new _m()
 
 data = [
     latitude: 52.234259
@@ -49,25 +55,27 @@ data = [
 ]
 
 EventItem = React.createClass
-    onClick: ->
-        @props.setEvent @props.eventNo
+    onClick: (e) ->
+        e.stopPropagation()
+        mediator.publish "setEvent", @props.eventNo
 
-    deleteEvent: ->
-        @props.deleteEvent @props.eventNo
+    deleteEvent: (e) ->
+        e.stopPropagation()
+        mediator.publish "deleteEvent", @props.eventNo
 
     upEvent: (e) ->
         e.stopPropagation()
-        @props.upEvent @props.eventNo
+        mediator.publish "upEvent", @props.eventNo
 
     downEvent: (e) ->
         e.stopPropagation()
-        @props.downEvent @props.eventNo
+        mediator.publish "downEvent", @props.eventNo
 
     changeName: (e, v) ->
-        @props.updateEvent @props.eventNo, name: e.target.value
+        mediator.publish "updateEvent", @props.eventNo, name: e.target.value
 
     changeDesc: (e, v) ->
-        @props.updateEvent @props.eventNo, description: e.target.value
+        mediator.publish "updateEvent", @props.eventNo, description: e.target.value
 
     render: ->
         classes = React.addons.classSet
@@ -97,81 +105,12 @@ EventItem = React.createClass
             {values}
         </div>
 
-EventScrubber = React.createClass
-    render: ->
-        style =
-            top: "#{@props.position*79*@props.eventCount}px" #lol
-        return (
-            <div className="EventScrubber">
-                <div className="EventScrubberDot" style={style}></div>
-            </div>
-        )
 EventScroller = React.createClass
-    threshold: 500
-
-    componentDidMount: ->
-        Mousetrap.bind ['down', 'right'], =>
-            @props.setEvent @props.currentEvent + 1
-            @setState
-                currentScroll: 0
-        Mousetrap.bind ['up', 'left'], =>
-            @props.setEvent @props.currentEvent - 1
-            @setState
-                currentScroll: 0
-
-    componentWillUnmount: ->
-        Mousetrap.unbind ['down', 'right']
-        Mousetrap.unbind ['up', 'left']
-
-    getInitialState: ->
-        currentScroll: - @threshold
-
-    setEvent: (e) ->
-        @props.setEvent e
-        @setState
-            currentScroll: 0
-
-    upEvent: (e) ->
-        @props.upEvent e
-
-    downEvent: (e) ->
-        @props.downEvent e
-
-    deleteEvent: (e) ->
-        @props.deleteEvent e
-
-    updateEvent: (eId, v) ->
-        @props.updateEvent eId, v
 
     addEvent: ->
-        @props.addEvent()
-
-    scrollHandler: (e) ->
-        wantedScroll = @state.currentScroll + e.deltaY
-
-        newScroll =
-            if wantedScroll > @threshold
-                if @props.setEvent @props.currentEvent + 1
-                    -@threshold
-                else
-                    @threshold
-            else if wantedScroll < -@threshold
-                if @props.setEvent @props.currentEvent - 1
-                    @threshold
-                else
-                    -@threshold
-            else
-                @state.currentScroll + e.deltaY
-
-        @setState
-            currentScroll: newScroll
-
-        e.preventDefault()
+        mediator.publish "addEvent"
 
     render: ->
-        scrubberPosition = ((@props.currentEvent) +
-        ((@state.currentScroll + @threshold) / (@threshold * 2))) / @props.events.length
-
         cE = @props.currentEvent
 
         <div className="EventScroller" onWheel={@scrollHandler}>
@@ -181,11 +120,6 @@ EventScroller = React.createClass
                         event={event} key={i} eventNo={i}
                         countEvents={@props.events.length}
                         isFocused={cE==i}
-                        setEvent={@setEvent}
-                        deleteEvent={@deleteEvent}
-                        updateEvent={@updateEvent}
-                        downEvent={@downEvent}
-                        upEvent={@upEvent}
                         editable={@props.editable}
                     />
                 }
@@ -197,7 +131,6 @@ EventScroller = React.createClass
                         </div>
                 }
             </div>
-            <EventScrubber eventCount={@props.events.length} position={scrubberPosition} />
         </div>
 
 MapWidget = React.createClass
@@ -222,28 +155,47 @@ EventPanel = React.createClass
             editable: false
             data: _.cloneDeep @props.defaultData
 
+    componentDidMount: ->
+        mediator.subscribe "setEvent", @setEvent
+        mediator.subscribe "upEvent", @upEvent
+        mediator.subscribe "downEvent", @downEvent
+        mediator.subscribe "deleteEvent", @deleteEvent
+        mediator.subscribe "addEvent", @addEvent
+        mediator.subscribe "updateEvent", @updateEvent
+
+        Mousetrap.bind ['down', 'right'], =>
+            mediator.publish "setEvent", @state.currentEvent + 1
+
+        Mousetrap.bind ['up', 'left'], =>
+            mediator.publish "setEvent", @state.currentEvent - 1
+
+    componentWillUnmount: ->
+        Mousetrap.unbind ['down', 'right']
+        Mousetrap.unbind ['up', 'left']
+
     componentWillUpdate: ->
         jsonState = JSON.stringify @state.data
         console.log jsonState
         localStorage.setItem "sceneEventState", jsonState
 
+    boundEvent: (eventNo, data) ->
+        if eventNo < 0
+            0
+        else if eventNo >= data.length
+            data.length - 1
+        else
+            eventNo
+
     setEvent: (eventNo) ->
-        changes = true
-        if eventNo  < 0
-            eventNo = 0
-            changes = false
-        else if eventNo  >= @state.data.length
-            eventNo = @state.data.length - 1
-            changes = false
         @setState
-            currentEvent: eventNo
-        return changes
+            currentEvent: @boundEvent eventNo, @state.data
 
     deleteEvent: (eventNo) ->
         newData = _.cloneDeep @state.data
         newData.splice eventNo, 1
         @setState
             data: newData
+            currentEvent: @boundEvent eventNo, newData
 
     updateEvent: (eventNo, obj) ->
         newData = _.cloneDeep @state.data
@@ -288,12 +240,6 @@ EventPanel = React.createClass
             <EventScroller
                 events={@state.data}
                 currentEvent={@state.currentEvent}
-                setEvent={@setEvent}
-                deleteEvent={@deleteEvent}
-                updateEvent={@updateEvent}
-                upEvent={@upEvent}
-                downEvent={@downEvent}
-                addEvent={@addEvent}
                 editable={@state.editable}
             />
             <div id="toggleEditButton#{@state.editable}" onClick={@toggleEditable}>
