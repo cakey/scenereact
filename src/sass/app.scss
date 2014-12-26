@@ -33,11 +33,6 @@ h1, h3 {
     text-align: center;
 }
 
-.EventItems {
-    width: 100%;
-    float: left;
-}
-
 .EventItem {
     padding: 4px 20px;
     display: block;
@@ -72,6 +67,7 @@ h1, h3 {
 .EventPanel {
     width: 100%;
     height: 100vh;
+    overflow: auto;
     box-sizing: border-box;
 
 }
@@ -81,18 +77,20 @@ h1, h3 {
 }
 .MapWidget {
     box-sizing: border-box;
-    float: left;
+    position: fixed;
+    left: 10%;
+    top: 0px;
     width: 50%;
     height: 100%;
 }
 
 .TimeLineWidget {
     box-sizing: border-box;
-    float: left;
+    left: 0px;
+    position: fixed;
     width: 10%;
     height: 87%;
     top: 5%;
-    position: relative;
     text-align: middle;
 }
 
@@ -114,7 +112,6 @@ h1, h3 {
     width: 0px;
     margin-left: auto;
     margin-right: auto;
-    //background: #888;
     border: 1px dotted #888;
     border-radius: 10px;
 
