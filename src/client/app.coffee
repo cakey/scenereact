@@ -44,7 +44,7 @@ EventItem = React.createClass
     render: ->
         classes = React.addons.classSet
             'EventItem': true
-            'EventItemFocused': @props.isFocused
+            'focused': @props.isFocused
 
         values =
             if @props.editable and @props.isFocused
@@ -226,7 +226,11 @@ EventPanel = React.createClass
                 currentEvent={@state.currentEvent}
                 editable={@state.editable}
             />
-            <div id="toggleEditButton#{@state.editable}" onClick={@toggleEditable}>
+            <div
+                id="toggleEditButton"
+                className={if @state.editable then "editable" else ""}
+                onClick={@toggleEditable}
+            >
                 <img id="toggleEditImage" src={image} />
             </div>
         </div>

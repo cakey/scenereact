@@ -1,9 +1,7 @@
 /*
     TODO:
-        Nest semantic elements like focused.
         Order statements within block.
         Use compass.
-        True/False -> .editable
 */
 
 $font-stack: "Century Gothic", sans-serif;
@@ -33,7 +31,6 @@ body {
     overflow: hidden;
     color: #666;
     font-size: 0.9em;
-
 }
 
 h1, h3 {
@@ -45,15 +42,15 @@ h1, h3 {
     padding: 4px 20px;
     display: block;
     position: relative;
-}
 
-.EventItem:hover,
-.EventItemFocused {
-    box-shadow: 0px 0px 10px #9d9;
-}
+    &:hover {
+        box-shadow: 0px 0px 10px #9d9;
+    }
 
-.EventItemFocused {
-    background: #ffffff;
+    &.focused {
+        box-shadow: 0px 0px 10px #9d9;
+        background: #ffffff;
+    }
 }
 
 .editable {
@@ -76,25 +73,21 @@ h1, h3 {
     width: 100%;
     height: 100vh;
     overflow: auto;
-    box-sizing: border-box;
-
 }
+
 .EventScroller {
     float: right;
     width: 40%;
 }
+
 .MapWidget {
-    box-sizing: border-box;
     position: fixed;
     left: 10%;
-    top: 0px;
     width: 50%;
     height: 100%;
 }
 
 .TimeLineWidget {
-    box-sizing: border-box;
-    left: 0px;
     position: fixed;
     width: 10%;
     height: 87%;
@@ -130,60 +123,42 @@ h1, h3 {
     white-space: nowrap;
     text-align: center;
     margin: 1em 0;
+    background: #e3e3e3;
+    box-shadow: 0px 0px 1px #999;
+    width: 50px;
+    height: 50px;
+    @include no-user-select();
 }
 
 %bigButton:hover {
     box-shadow: 0px 0px 10px #9d9;
 }
 
-@mixin toggleEditButton() {
+#toggleEditButton {
     position: fixed;
     bottom: 0px;
     right: 15px;
     @extend %bigButton;
-    @include no-user-select();
-}
 
-#toggleEditButtonfalse {
-    width: 50px;
-    height: 50px;
-    background: #e3e3e3;
-    box-shadow: 0px 0px 1px #999;
-    @include toggleEditButton();
-}
-
-#toggleEditButtontrue {
-    width: 60px;
-    height: 60px;
-    background: #ffffff;
-    box-shadow: 0px 0px 10px #9d9;
-    @include toggleEditButton();
+    .editable {
+        width: 60px;
+        height: 60px;
+        background: #ffffff;
+        box-shadow: 0px 0px 10px #9d9;
+    }
 }
 
 #addItemButton {
-    width: 50px;
-    height: 50px;
-    background: #e3e3e3;
-    box-shadow: 0px 0px 1px #999;
-    margin-left: 10px;
+    margin-left: 15px;
     @extend %bigButton;
-    @include no-user-select();
 }
 
-%bigButtonImage {
+#toggleEditImage, #addItemButtonImage {
     height: 24px;
     width: 24px;
     max-width: 50px;
     max-height: 50px;
     @include vertical-align();
-}
-
-#addItemButtonImage {
-    @extend %bigButtonImage;
-}
-
-#toggleEditImage {
-    @extend %bigButtonImage;
 }
 
 %itemButton {
@@ -197,7 +172,6 @@ h1, h3 {
         width: 20px;
         right: 10px;
     }
-
 }
 
 .deleteItemButton {
