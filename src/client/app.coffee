@@ -1,9 +1,10 @@
 # TODO:
-# 1. propagating the event methods seems a little ridiculous...
-#   should set up an event system
-# 2. Pull out buttons to sub react components??
-# 3. Re add smooth scrolling (state var?)
-# 4. Refactor methods in EventPanel
+# * Pull out buttons to sub react components??
+# * Re add smooth scrolling (state var?)
+# * Refactor methods in EventPanel
+# * In-place editing of locations
+# * Search for a place in edit mode
+# * Why is getPoint global zZz
 
 _ = require 'lodash'
 React = require "react/addons"
@@ -111,7 +112,7 @@ TimeLineWidget = React.createClass
             <div className="TimeLineLine" ></div>
                 {@props.events.map (event, i) =>
                     style =
-                        top: "#{((i / (@props.events.length-1)))*100}%"
+                        top: "#{((i / (@props.events.length-1)) or 0.5)*100}%"
                         background: if @props.currentEvent == i then "#ccc" else "#eee"
                     <div
                         className="TimeLinePoint"
@@ -200,7 +201,7 @@ EventPanel = React.createClass
 
     addEvent: ->
         newEvent = getPoint() # TODO: urghh
-        newEvent.name = "Copy of #{@state.data[@state.currentEvent].name}"
+        newEvent.name = "Copy of #{@state.data[@state.currentEvent]?.name}"
         newEvent.description = "Describe me!"
         newData = _.cloneDeep @state.data
         newData.push newEvent
