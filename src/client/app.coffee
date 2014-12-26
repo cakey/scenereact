@@ -111,8 +111,13 @@ TimeLineWidget = React.createClass
         <div className="TimeLineWidget">
             <div className="TimeLineLine" ></div>
                 {@props.events.map (event, i) =>
+                    top =
+                        if @props.events.length is 1
+                            50
+                        else
+                            (i / (@props.events.length - 1)) * 100
                     style =
-                        top: "#{((i / (@props.events.length-1)) or 0.5)*100}%"
+                        top: "#{top}%"
                         background: if @props.currentEvent == i then "#ccc" else "#eee"
                     <div
                         className="TimeLinePoint"
