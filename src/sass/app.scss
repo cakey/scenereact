@@ -1,3 +1,11 @@
+/*
+    TODO:
+        Nest semantic elements like focused.
+        Order statements within block.
+        Use compass.
+        True/False -> .editable
+*/
+
 $font-stack: "Century Gothic", sans-serif;
 
 @mixin no-user-select() {
@@ -39,13 +47,13 @@ h1, h3 {
     position: relative;
 }
 
-.EventItem:hover {
+.EventItem:hover,
+.EventItemFocused {
     box-shadow: 0px 0px 10px #9d9;
 }
 
 .EventItemFocused {
     background: #ffffff;
-    box-shadow: 0px 0px 10px #9d9;
 }
 
 .editable {
@@ -183,12 +191,12 @@ h1, h3 {
     width: 10px;
     position: absolute;
     right: 15px;
-}
 
-%itemButton:hover {
-    height: 20px;
-    width: 20px;
-    right: 10px;
+    &:hover {
+        height: 20px;
+        width: 20px;
+        right: 10px;
+    }
 
 }
 
@@ -196,26 +204,26 @@ h1, h3 {
     top: 50%;
     margin-top: -5px;
     @extend %itemButton;
-}
 
-.deleteItemButton:hover {
-    margin-top: -10px;
+    &:hover {
+        margin-top: -10px;
+    }
 }
 
 .upItemButton {
     top: 9px;
     @extend %itemButton;
-}
 
-.upItemButton:hover {
-    top: 4px;
+    &:hover {
+        top: 4px;
+    }
 }
 
 .downItemButton {
     bottom: 9px;
     @extend %itemButton;
-}
 
-.downItemButton:hover {
-    bottom: 4px;
+    &:hover {
+        bottom: 4px;
+    }
 }
