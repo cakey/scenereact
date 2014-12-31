@@ -38,5 +38,41 @@ life =
         description: "LY"
     ]
 
+haight =
+    [
+        {
+            "latitude":37.76904943624587,
+            "longitude":-122.45332484787745,
+            "zoom":19,
+            "name":"Beautiful view of the Park",
+            "description":"This is where we start our walk"
+        },{
+            "latitude":37.76943956096612,
+            "longitude":-122.45133867209944,
+            "zoom":19,
+            "name":"Great Pizza Here",
+            "description":"Go for pepperoni!"
+        },{
+            "latitude":37.76956783522013,
+            "longitude":-122.45056619590315,
+            "zoom":19,
+            "name":"Get money out here if you need to!",
+            "description":"Lots of nice things to buy!"
+        },{
+            "latitude":37.76968126763963,
+            "longitude":-122.45033150261453,
+            "zoom":19,
+            "name":"Nice thrift shops here!",
+            "description":"Pretty things"
+        },{
+            "latitude":37.769822262834474,
+            "longitude":-122.44929616993478,
+            "zoom":19,
+            "name":"Cool bookshop",
+            "description":"They have personal notes!"
+        }
+    ]
+
 module.exports =
     life: life
+    haight: haight

@@ -5,6 +5,7 @@
 # * In-place editing of locations
 # * Search for a place in edit mode
 # * Why is getPoint global zZz
+# * Reset button
 
 _ = require 'lodash'
 React = require "react/addons"
@@ -17,7 +18,7 @@ _m = require("mediator-js").Mediator
 
 mediator = new _m()
 
-data = require("./defaultData.coffee").life
+data = require("./defaultData.coffee").haight
 
 EventItem = React.createClass
     onClick: (e) ->
@@ -98,12 +99,48 @@ EventScroller = React.createClass
             </div>
         </div>
 
+pointsEqual = (a, b) ->
+    (a.zoom is b.zoom and
+    Math.abs(a.latitude - b.latitude) < 0.00000001 and
+    Math.abs(a.longitude - b.longitude) < 0.00000001)
+
+
 MapWidget = React.createClass
+
+    getInitialState: ->
+        mapLocation: @props.event
+        fromMap: false
+
+    componentWillReceiveProps: (nextProps) ->
+        # Don't reset the map to prop point if switching to editable mode.
+        if @props.editable is nextProps.editable
+            @setState
+                mapLocation: nextProps.event
+                fromMap: false
+
+    onMapMove: (newMapLocation) ->
+        @setState
+            mapLocation: newMapLocation
+            fromMap: true
+
+    setLocation: ->
+        mediator.publish "updateEvent", null, @state.mapLocation
+
     render: ->
         <div className="MapWidget">
             <GMap
-                view={@props.event}
+                view={@state.mapLocation}
+                mapMove={@onMapMove}
+                fromMap={@state.fromMap}
             />
+            {
+                if @props.editable and not pointsEqual @props.event, @state.mapLocation
+                    <div
+                        className="setLocationButton"
+                        onClick={@setLocation}>Set Location
+                    </div>
+
+            }
         </div>
 
 TimeLineWidget = React.createClass
@@ -118,9 +155,11 @@ TimeLineWidget = React.createClass
                             (i / (@props.events.length - 1)) * 100
                     style =
                         top: "#{top}%"
-                        background: if @props.currentEvent == i then "#ccc" else "#eee"
+                    classes = React.addons.classSet
+                        "TimeLinePoint": true
+                        'active': @props.currentEvent == i
                     <div
-                        className="TimeLinePoint"
+                        className={classes}
                         key={i}
                         style={style}
                     />
@@ -184,6 +223,9 @@ EventPanel = React.createClass
             currentEvent: @boundEvent eventNo, newData
 
     updateEvent: (eventNo, obj) ->
+        if not eventNo?
+            eventNo = @state.currentEvent
+
         newData = _.cloneDeep @state.data
         for k, v of obj
             newData[eventNo][k] = v
@@ -226,7 +268,11 @@ EventPanel = React.createClass
                 events={@state.data}
                 currentEvent={@state.currentEvent}
             />
-            <MapWidget event={@state.data[@state.currentEvent]} />
+            <MapWidget
+                event={@state.data[@state.currentEvent]}
+                editable={@state.editable}
+                mapMove={@onMapMove}
+            />
             <EventScroller
                 events={@state.data}
                 currentEvent={@state.currentEvent}

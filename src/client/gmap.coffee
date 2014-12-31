@@ -21,7 +21,11 @@ smoothPoints = (startPoint, endPoint) ->
 
     # first collect which zoom levels we are interested in (includes source)
 
-    zooms = [startPoint.zoom .. minZoom].concat([minZoom, minZoom, minZoom, minZoom, minZoom]).concat [minZoom .. endPoint.zoom]
+    zooms = [startPoint.zoom .. minZoom]
+
+    n = Math.max(2, (20 - (zooms.length * 2)))
+
+    zooms = zooms.concat((minZoom for z in [0 .. n])).concat [minZoom .. endPoint.zoom]
 
     transitions = (_.zip zooms, zooms[1..])[..zooms.length - 2]
 
@@ -48,6 +52,9 @@ smoothPoints = (startPoint, endPoint) ->
 
 Map = React.createClass
 
+    # The delay between timeouts when animating map transitions
+    ANIMATION_RATE_MS: 100
+
     # initialize local variables
     getInitialState: ->
         map: null
@@ -64,15 +71,6 @@ Map = React.createClass
         points: []
         gmaps_api_key: "AIzaSyA6JBkMIUrJt45TPCMbdgkITL3JTCbywks"
         gmaps_sensor: false
-
-
-    getPoint: ->
-        center = @state.map.getCenter()
-        return {
-            zoom: @state.map.getZoom()
-            latitude: center.lat()
-            longitude: center.lng()
-        }
 
     # update geo-encoded markers
     updateMarkers: (points) ->
@@ -105,7 +103,7 @@ Map = React.createClass
         <div style={style}></div>
 
     componentDidMount: ->
-        window.getPoint = @getPoint
+        window.getPoint = @currentView
 
         @timeoutIds = [] # maybe should be state?
 
@@ -120,6 +118,9 @@ Map = React.createClass
             map = new google.maps.Map(@getDOMNode(), mapOptions)
             @setState map: map
             @updateMarkers @props.points
+
+            google.maps.event.addListener map, 'bounds_changed', _.debounce (=>
+                @props.mapMove @currentView()), Math.max(300, @ANIMATION_RATE_MS + 25)
 
         s = document.createElement("script")
         s.src = "https://maps.googleapis.com/maps/api/js?key=" + @props.gmaps_api_key + "&sensor=" + @props.gmaps_sensor + "&callback=mapLoaded"
@@ -141,20 +142,19 @@ Map = React.createClass
         @clearTimeouts()
         @updateMarkers props.points if props.points
 
-        intermediatePoints = smoothPoints @currentView(), props.view
+        if not props.fromMap
+            intermediatePoints = smoothPoints @currentView(), props.view
 
-        for point, i in intermediatePoints
-            sT = (point, i) =>
-                timeoutId = setTimeout (=>
-                    center = new google.maps.LatLng(point.latitude, point.longitude)
-                    zoom = point.zoom
-                    # Maybe triggering some sort of onStateChange is better?
-                    @state.map.panTo center
-                    @state.map.setZoom zoom
-                ), i * 100
-                @timeoutIds.push timeoutId
-            sT point, i
-
-        @prevView = props.view
+            for point, i in intermediatePoints
+                sT = (point, i) =>
+                    timeoutId = setTimeout (=>
+                        center = new google.maps.LatLng(point.latitude, point.longitude)
+                        zoom = point.zoom
+                        # Maybe triggering some sort of onStateChange is better?
+                        @state.map.panTo center
+                        @state.map.setZoom zoom
+                    ), i * @ANIMATION_RATE_MS
+                    @timeoutIds.push timeoutId
+                sT point, i
 
 module.exports = Map
