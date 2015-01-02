@@ -120,7 +120,7 @@ Map = React.createClass
             @updateMarkers @props.markers
 
             google.maps.event.addListener map, 'bounds_changed', _.debounce (=>
-                @props.mapMove @currentView()), Math.max(300, @ANIMATION_RATE_MS + 25)
+                @props.mapMove @currentView()), Math.max(200, @ANIMATION_RATE_MS + 25)
 
         s = document.createElement("script")
         s.src = "https://maps.googleapis.com/maps/api/js?key=" + @props.gmaps_api_key + "&sensor=" + @props.gmaps_sensor + "&callback=mapLoaded"

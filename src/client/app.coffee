@@ -124,15 +124,20 @@ MapWidget = React.createClass
                 mapLocation: newMapLocation
                 fromMap: true
 
+    resetLocation: ->
+        @setState
+            mapLocation: @props.event
+            fromMap: false
+
     setLocation: ->
         mediator.publish "updateEvent", null, @state.mapLocation
 
     render: ->
         markers =
-            if not @state.fromMap
+            if @props.editable and @state.fromMap
                 [@state.mapLocation]
             else
-                []
+                [@props.event]
         <div className="MapWidget">
             <GMap
                 view={@state.mapLocation}
@@ -142,9 +147,13 @@ MapWidget = React.createClass
             />
             {
                 if @props.editable and not pointsEqual @props.event, @state.mapLocation
-                    <div
-                        className="setLocationButton"
-                        onClick={@setLocation}>Set Location
+                    <div>
+                        <div className="resetLocationButton"
+                            onClick={@resetLocation}>Reset
+                        </div>
+                        <div className="setLocationButton"
+                            onClick={@setLocation}>Set Location
+                        </div>
                     </div>
 
             }
