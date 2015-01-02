@@ -119,17 +119,24 @@ MapWidget = React.createClass
                 fromMap: false
 
     onMapMove: (newMapLocation) ->
-        @setState
-            mapLocation: newMapLocation
-            fromMap: true
+        if not pointsEqual newMapLocation, @state.mapLocation
+            @setState
+                mapLocation: newMapLocation
+                fromMap: true
 
     setLocation: ->
         mediator.publish "updateEvent", null, @state.mapLocation
 
     render: ->
+        markers =
+            if not @state.fromMap
+                [@state.mapLocation]
+            else
+                []
         <div className="MapWidget">
             <GMap
                 view={@state.mapLocation}
+                markers={markers}
                 mapMove={@onMapMove}
                 fromMap={@state.fromMap}
             />

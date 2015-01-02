@@ -117,7 +117,7 @@ Map = React.createClass
                 panControl: false
             map = new google.maps.Map(@getDOMNode(), mapOptions)
             @setState map: map
-            @updateMarkers @props.points
+            @updateMarkers @props.markers
 
             google.maps.event.addListener map, 'bounds_changed', _.debounce (=>
                 @props.mapMove @currentView()), Math.max(300, @ANIMATION_RATE_MS + 25)
@@ -140,7 +140,7 @@ Map = React.createClass
     # update markers if needed
     componentWillReceiveProps: (props) ->
         @clearTimeouts()
-        @updateMarkers props.points if props.points
+        @updateMarkers props.markers if props.markers?
 
         if not props.fromMap
             intermediatePoints = smoothPoints @currentView(), props.view
