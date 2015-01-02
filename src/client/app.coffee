@@ -134,8 +134,10 @@ MapWidget = React.createClass
 
     render: ->
         markers =
-            if @props.editable and @state.fromMap
-                [@state.mapLocation]
+            if @props.editable
+                m = _.cloneDeep @state.mapLocation
+                m.draggable = true
+                [m]
             else
                 [@props.event]
         <div className="MapWidget">

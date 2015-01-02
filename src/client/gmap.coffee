@@ -23,7 +23,7 @@ smoothPoints = (startPoint, endPoint) ->
 
     zooms = [startPoint.zoom .. minZoom]
 
-    n = Math.max(2, (20 - (zooms.length * 2)))
+    n = Math.max(2, (12 - (zooms.length * 2)))
 
     zooms = zooms.concat((minZoom for z in [0 .. n])).concat [minZoom .. endPoint.zoom]
 
@@ -72,6 +72,28 @@ Map = React.createClass
         gmaps_api_key: "AIzaSyA6JBkMIUrJt45TPCMbdgkITL3JTCbywks"
         gmaps_sensor: false
 
+    dragMarkerEnd: (event) ->
+        p =
+            latitude: event.latLng.lat()
+            longitude: event.latLng.lng()
+            zoom: @state.map.getZoom()
+        @smoothPan p
+
+    smoothPan: (endPoint) ->
+        intermediatePoints = smoothPoints @currentView(), endPoint
+
+        for point, i in intermediatePoints
+            sT = (point, i) =>
+                timeoutId = setTimeout (=>
+                    center = new google.maps.LatLng(point.latitude, point.longitude)
+                    zoom = point.zoom
+                    # Maybe triggering some sort of onStateChange is better?
+                    @state.map.panTo center
+                    @state.map.setZoom zoom
+                ), i * @ANIMATION_RATE_MS
+                @timeoutIds.push timeoutId
+            sT point, i
+
     # update geo-encoded markers
     updateMarkers: (points) ->
         markers = @state.markers
@@ -80,16 +102,20 @@ Map = React.createClass
         # remove everything
         markers.forEach (marker) ->
             marker.setMap null
+            google.maps.event.clearListeners marker, 'dragend'
 
         @state.markers = []
 
         # add new markers
-        points.forEach (point) ->
+        points.forEach (point) =>
             location = new google.maps.LatLng(point.latitude, point.longitude)
             marker = new google.maps.Marker
                 position: location
                 map: map
                 title: point.label
+                draggable: point.draggable
+
+            google.maps.event.addListener marker, 'dragend', @dragMarkerEnd
 
             markers.push marker
 
@@ -119,8 +145,12 @@ Map = React.createClass
             @setState map: map
             @updateMarkers @props.markers
 
+            google.maps.event.addListener map, 'dragstart', =>
+                @clearTimeouts()
+
             google.maps.event.addListener map, 'bounds_changed', _.debounce (=>
                 @props.mapMove @currentView()), Math.max(200, @ANIMATION_RATE_MS + 25)
+
 
         s = document.createElement("script")
         s.src = "https://maps.googleapis.com/maps/api/js?key=" + @props.gmaps_api_key + "&sensor=" + @props.gmaps_sensor + "&callback=mapLoaded"
@@ -143,18 +173,6 @@ Map = React.createClass
         @updateMarkers props.markers if props.markers?
 
         if not props.fromMap
-            intermediatePoints = smoothPoints @currentView(), props.view
-
-            for point, i in intermediatePoints
-                sT = (point, i) =>
-                    timeoutId = setTimeout (=>
-                        center = new google.maps.LatLng(point.latitude, point.longitude)
-                        zoom = point.zoom
-                        # Maybe triggering some sort of onStateChange is better?
-                        @state.map.panTo center
-                        @state.map.setZoom zoom
-                    ), i * @ANIMATION_RATE_MS
-                    @timeoutIds.push timeoutId
-                sT point, i
+            @smoothPan props.view
 
 module.exports = Map
