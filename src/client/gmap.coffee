@@ -68,7 +68,7 @@ Map = React.createClass
             zoom: 2
         width: "100%"
         height: "100%"
-        points: []
+        markers: []
         gmaps_api_key: "AIzaSyA6JBkMIUrJt45TPCMbdgkITL3JTCbywks"
         gmaps_sensor: false
 
@@ -125,8 +125,18 @@ Map = React.createClass
         style =
             width: @props.width
             height: @props.height
-
-        <div style={style}></div>
+        # pac-input needs a wrapper otherwise GMaps interferes with React >
+        <div style={style}>
+            <div>
+                <input
+                    id="pac-input"
+                    className={if @props.editable then "editable" else ""}
+                    type="text"
+                    placeholder="Search Box"
+                />
+            </div>
+            <div id="_GMAP_HOLDER" style={style}></div>
+        </div>
 
     componentDidMount: ->
         window.getPoint = @currentView
@@ -141,20 +151,57 @@ Map = React.createClass
                 disableDefaultUI: true
                 zoomControl: false
                 panControl: false
-            map = new google.maps.Map(@getDOMNode(), mapOptions)
-            @setState map: map
+            map = new google.maps.Map(document.getElementById('_GMAP_HOLDER'), mapOptions)
+
+            input = document.getElementById 'pac-input'
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push input
+            # Use Autocomplete over SearchBox to avoid 'ambigious' results like
+            # 'Pizza places in new York'
+            searchBox = new google.maps.places.Autocomplete input
+
+            @setState
+                map: map
+                searchBox: searchBox
             @updateMarkers @props.markers
 
             google.maps.event.addListener map, 'dragstart', =>
                 @clearTimeouts()
 
             google.maps.event.addListener map, 'bounds_changed', _.debounce (=>
+                @state.searchBox.setBounds @state.map.getBounds()
                 @props.mapMove @currentView()), Math.max(200, @ANIMATION_RATE_MS + 25)
+
+            google.maps.event.addListener searchBox, 'place_changed', =>
+                place = @state.searchBox.getPlace()
+                if Object.keys(place).length is 1
+                    # User pressed enter and so it only gave us their text...
+                    aus = new google.maps.places.AutocompleteService()
+                    request =
+                        bounds: @state.map.getBounds()
+                        input: place.name
+                    aus.getPlacePredictions request, (places) =>
+                        if places?.length > 0
+                            ps = new google.maps.places.PlacesService @state.map
+                            # nice consistent API google!
+                            ps.getDetails {placeId: places[0].place_id}, @setSearchPlace
+                else
+                    @setSearchPlace place
 
 
         s = document.createElement("script")
-        s.src = "https://maps.googleapis.com/maps/api/js?key=" + @props.gmaps_api_key + "&sensor=" + @props.gmaps_sensor + "&callback=mapLoaded"
+        s.src = ("https://maps.googleapis.com/maps/api/js?" +
+                    "key=" + @props.gmaps_api_key +
+                    "&sensor=" + @props.gmaps_sensor +
+                    "&callback=mapLoaded" +
+                    "&libraries=places")
         document.head.appendChild s
+
+    setSearchPlace: (placeResult) ->
+        p =
+            latitude: placeResult.geometry.location.lat()
+            longitude: placeResult.geometry.location.lng()
+            zoom: @state.map.getZoom()
+        @smoothPan p
 
     clearTimeouts: ->
         for timeoutId in @timeoutIds

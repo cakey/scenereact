@@ -243,3 +243,25 @@ h1, h3 {
     bottom: 70px;
     @extend %mapButton;
 }
+
+#pac-input {
+    box-sizing: border-box;
+    background-color: #fff;
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 300;
+    text-overflow: ellipsis;
+    margin: 30px;
+    padding: 12px;
+    width: calc(100% - 60px);
+    display: none;
+    &.editable {
+        display: inline;
+    }
+}
+
+#pac-input:focus {
+    border-color: #4d90fe;
+}
+
+

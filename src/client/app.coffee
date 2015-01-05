@@ -2,10 +2,8 @@
 # * Pull out buttons to sub react components??
 # * Re add smooth scrolling (state var?)
 # * Refactor methods in EventPanel
-# * In-place editing of locations
-# * Search for a place in edit mode
 # * Why is getPoint global zZz
-# * Reset button
+# * Search smoothPan should also zoom to the correct size.
 
 _ = require 'lodash'
 React = require "react/addons"
@@ -146,6 +144,7 @@ MapWidget = React.createClass
                 markers={markers}
                 mapMove={@onMapMove}
                 fromMap={@state.fromMap}
+                editable={@props.editable}
             />
             {
                 if @props.editable and not pointsEqual @props.event, @state.mapLocation
