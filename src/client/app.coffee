@@ -3,7 +3,6 @@
 # * Re add smooth scrolling (state var?)
 # * Refactor methods in EventPanel
 # * Why is getPoint global zZz
-# * Search smoothPan should also zoom to the correct size.
 
 _ = require 'lodash'
 React = require "react/addons"

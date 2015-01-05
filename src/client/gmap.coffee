@@ -79,6 +79,20 @@ Map = React.createClass
             zoom: @state.map.getZoom()
         @smoothPan p
 
+    zoomForBounds: (bounds) ->
+        ne = bounds.getNorthEast()
+        sw = bounds.getSouthWest()
+
+        totalLatDist = sw.lat() - ne.lat()
+        totalLongDist = sw.lng() - ne.lng()
+
+        totalDist = Math.sqrt (Math.pow(totalLatDist, 2) + Math.pow(totalLongDist, 2))
+
+        logDist = Math.log2 totalDist
+
+        zoom = Math.ceil (9 - logDist)
+        zoom
+
     smoothPan: (endPoint) ->
         intermediatePoints = smoothPoints @currentView(), endPoint
 
@@ -197,10 +211,18 @@ Map = React.createClass
         document.head.appendChild s
 
     setSearchPlace: (placeResult) ->
+        z =
+            if placeResult.types?[0] is "street_address"
+                16
+            else if placeResult.geometry.viewport?
+                @zoomForBounds placeResult.geometry.viewport
+            else
+                18
+
         p =
             latitude: placeResult.geometry.location.lat()
             longitude: placeResult.geometry.location.lng()
-            zoom: @state.map.getZoom()
+            zoom: z
         @smoothPan p
 
     clearTimeouts: ->
