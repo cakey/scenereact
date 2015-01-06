@@ -17,15 +17,20 @@ smoothPoints = (startPoint, endPoint) ->
 
     maxZoom = 21
 
-    curveFactor = 16 # Higher = zoom out quicker before panning
+    curveFactor = 7 # Higher = zoom out quicker before panning
 
     # first collect which zoom levels we are interested in (includes source)
 
-    zooms = [startPoint.zoom .. minZoom]
+    _zooms = [startPoint.zoom .. minZoom]
 
-    n = Math.max(2, (12 - (zooms.length * 2)))
+    n = 0 #Math.max(0, (10 - (zooms.length * 2)))
 
-    zooms = zooms.concat((minZoom for z in [0 .. n])).concat [minZoom .. endPoint.zoom]
+    _zooms = _zooms.concat((minZoom for z in [0 .. n])).concat [minZoom .. endPoint.zoom]
+
+    zooms = []
+    for z in _zooms
+        zooms.push z
+        zooms.push z
 
     transitions = (_.zip zooms, zooms[1..])[..zooms.length - 2]
 

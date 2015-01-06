@@ -17,10 +17,13 @@ mediator = new _m()
 
 data = require("./defaultData.coffee").haight
 
+moment = require "moment"
+
 EventItem = React.createClass
     onClick: (e) ->
         e.stopPropagation()
-        mediator.publish "setEvent", @props.eventNo
+        if not (@props.isFocused and @props.editable)
+            mediator.publish "setEvent", @props.eventNo
 
     deleteEvent: (e) ->
         e.stopPropagation()
@@ -48,7 +51,7 @@ EventItem = React.createClass
         values =
             if @props.editable and @props.isFocused
                 <div>
-                    <input className="editable bold" value={@props.event.name} onChange={@changeName} />
+                    <textarea className="editable bold" value={@props.event.name} onChange={@changeName} />
                     <textarea className="editable" value={@props.event.description} onChange={@changeDesc}  />
                     {if @props.eventNo > 0
                         <img src="assets/glyphicons-214-up-arrow.png" className="upItemButton" onClick={@upEvent}/>

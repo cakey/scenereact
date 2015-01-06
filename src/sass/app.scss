@@ -6,6 +6,8 @@
 
 $font-stack: "Century Gothic", sans-serif;
 
+$focusColor: #F2DE50;
+
 @mixin no-user-select() {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -27,9 +29,9 @@ body {
     margin: 0px;
     padding: 0px;
     font-family: $font-stack;
-    background: #eeeeee;
+    background: #444444;
     overflow: hidden;
-    color: #666;
+    color: #cccccc;
     font-size: 0.9em;
 }
 
@@ -43,28 +45,28 @@ h1, h3 {
     display: block;
     position: relative;
 
-    transition: all .5s ease-in-out;
-
     &:hover {
-        box-shadow: 0px 0px 10px #9d9;
+        box-shadow: 0px 0px 10px $focusColor;
     }
 
     &.focused {
-        box-shadow: 0px 0px 10px #9d9;
-        background: #ffffff;
+        background: $focusColor;
+        color: #555555;
     }
 }
 
 .editable {
+    border-radius: 2px;
     width: 90%;
     display: block;
-    color: #666;
+    color: #444444;
     font-size: 1em;
     font-family: $font-stack;
     margin-left: -6px;
     margin-top: 6px;
     margin-bottom: 6px;
     padding: 4px;
+    height: 20px;
 }
 
 .bold {
@@ -104,14 +106,13 @@ h1, h3 {
     position: absolute;
     left: 50%;
     margin-left: -16px;
-    border: 1px solid #888;
     border-radius: 20px;
-    background: #eeeeee;
+    background: #666666;
 
     transition: background .4s ease-in-out;
 
     &.active {
-        background: #bbb;
+        background: $focusColor;
     }
 
 }
