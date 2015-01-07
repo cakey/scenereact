@@ -162,6 +162,25 @@ MapWidget = React.createClass
             }
         </div>
 
+TimeLinePoint = React.createClass
+    onClick: ->
+        if not (@props.active and @props.editable)
+            mediator.publish "setEvent", @props.eventNo
+
+    render: ->
+        classes = React.addons.classSet
+            "TimeLinePoint": true
+            'active': @props.active
+        style =
+            top: "#{@props.top}%"
+        <div
+            className={classes}
+            style={style}
+            onClick={@onClick}
+        >
+            { if @props.editable then "?" else "" }
+        </div>
+
 TimeLineWidget = React.createClass
     render: ->
         <div className="TimeLineWidget">
@@ -172,15 +191,12 @@ TimeLineWidget = React.createClass
                             50
                         else
                             (i / (@props.events.length - 1)) * 100
-                    style =
-                        top: "#{top}%"
-                    classes = React.addons.classSet
-                        "TimeLinePoint": true
-                        'active': @props.currentEvent == i
-                    <div
-                        className={classes}
+                    <TimeLinePoint
+                        eventNo={i}
+                        active={@props.currentEvent == i}
+                        top={top}
                         key={i}
-                        style={style}
+                        editable={@props.editable}
                     />
                 }
         </div>
@@ -286,6 +302,7 @@ EventPanel = React.createClass
             <TimeLineWidget
                 events={@state.data}
                 currentEvent={@state.currentEvent}
+                editable={@state.editable}
             />
             <MapWidget
                 event={@state.data[@state.currentEvent]}
