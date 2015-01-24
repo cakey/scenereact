@@ -178,7 +178,7 @@ TimeLinePoint = React.createClass
             style={style}
             onClick={@onClick}
         >
-            { if @props.editable then "?" else "" }
+            { @props.eventNo + 1 }
         </div>
 
 TimeLineWidget = React.createClass

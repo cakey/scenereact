@@ -2,6 +2,8 @@
     TODO:
         Order statements within block.
         Use compass.
+        http://cssguidelin.es/
+        no ids!
 */
 
 $font-stack: "Century Gothic", sans-serif;
@@ -53,7 +55,7 @@ body {
 }
 
 .editable {
-    border-radius: 2px;
+    border-radius: 4px;
     width: 90%;
     display: block;
     color: $backgroundColor;
@@ -78,13 +80,13 @@ body {
 
 .EventScroller {
     float: right;
-    width: 40%;
+    width: 50%;
 }
 
 .MapWidget {
     position: fixed;
     left: 10%;
-    width: 50%;
+    width: 40%;
     height: 100%;
 }
 
@@ -262,6 +264,8 @@ body {
     padding: 16px;
     width: calc(100% - 60px);
     display: none;
+    border: 0px solid #444;
+    border-radius: 4px;
     &.editable {
         display: inline;
     }

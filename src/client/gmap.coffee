@@ -1,5 +1,7 @@
 _ = require 'lodash'
 
+keys = require '../config/keys'
+
 React = require "react/addons"
 
 smoothPoints = (startPoint, endPoint) ->
@@ -12,25 +14,20 @@ smoothPoints = (startPoint, endPoint) ->
     # Calculate minZoom for close together points.
     logDist = Math.log2 totalDist
     minZoom = Math.min(
-        Math.max(4, 10 - (Math.round logDist)),
+        Math.max(4, 9 - (Math.round logDist)),
         Math.min(startPoint.zoom, endPoint.zoom))
 
     maxZoom = 21
 
-    curveFactor = 7 # Higher = zoom out quicker before panning
+    curveFactor = 18 # Higher = zoom out quicker before panning
 
     # first collect which zoom levels we are interested in (includes source)
 
     _zooms = [startPoint.zoom .. minZoom]
 
-    n = 0 #Math.max(0, (10 - (zooms.length * 2)))
+    n = 3 #Math.max(0, (10 - (zooms.length * 2)))
 
-    _zooms = _zooms.concat((minZoom for z in [0 .. n])).concat [minZoom .. endPoint.zoom]
-
-    zooms = []
-    for z in _zooms
-        zooms.push z
-        zooms.push z
+    zooms = _zooms.concat((minZoom for z in [0 .. n])).concat [minZoom .. endPoint.zoom]
 
     transitions = (_.zip zooms, zooms[1..])[..zooms.length - 2]
 
@@ -74,7 +71,7 @@ Map = React.createClass
         width: "100%"
         height: "100%"
         markers: []
-        gmaps_api_key: "AIzaSyA6JBkMIUrJt45TPCMbdgkITL3JTCbywks"
+        gmaps_api_key: keys.gmaps
         gmaps_sensor: false
 
     dragMarkerEnd: (event) ->
