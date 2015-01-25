@@ -81,7 +81,7 @@ gulp.task "default", ["scripts", "tests", "styles", "jade", "assets"], ->
 
     $.livereload.listen()
 
-    port = 4002
+    port = 4003
     gutil.log gutil.colors.cyan "=== Listening on port #{port}. ==="
     app.listen port
 
