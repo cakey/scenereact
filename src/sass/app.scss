@@ -170,10 +170,27 @@ body {
     }
 }
 
+#shareButton {
+    position: fixed;
+    bottom: 0px;
+    right: 85px;
+    @extend %bigButton;
+
+}
+
 #addItemButton {
     margin-left: 15px;
     @extend %bigButton;
 }
+
+#shareButtonImage, {
+    height: 22px;
+    width: 30px;
+    max-width: 50px;
+    max-height: 50px;
+    @include vertical-align();
+}
+
 
 #toggleEditImage, #addItemButtonImage {
     height: 24px;

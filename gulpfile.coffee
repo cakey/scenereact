@@ -70,6 +70,15 @@ gulp.task "default", ["scripts", "tests", "styles", "jade", "assets"], ->
     app = express()
     app.use require('connect-livereload')()
     app.use express.static "#{__dirname}/public"
+
+    app.use (req, res) ->
+        if req.url[req.url.length-7 .. req.url.length-1] is "app.css"
+            res.status(200).sendFile "app.css", {root: __dirname + '/public'}
+        else if req.url[req.url.length-6 .. req.url.length-1] is "app.js"
+            res.status(200).sendFile "app.js", {root: __dirname + '/public'}
+        else
+            res.status(200).sendFile "index.html", {root: __dirname + '/public'}
+
     $.livereload.listen()
 
     port = 4002

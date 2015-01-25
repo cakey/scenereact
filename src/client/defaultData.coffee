@@ -73,6 +73,18 @@ haight =
         }
     ]
 
+d =
+    [
+        {
+            "latitude": 40
+            "longitude": -40
+            "zoom":2,
+            "name":"Start your story!",
+            "description":"Press the edit button bottom right to get started."
+        }
+    ]
+
 module.exports =
     life: life
     haight: haight
+    default: d

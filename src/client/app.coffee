@@ -6,18 +6,19 @@
 
 _ = require 'lodash'
 React = require "react/addons"
+Mousetrap = require "br-mousetrap"
+mediator = require("mediator-js").Mediator()
+moment = require "moment"
+uuid = require "uuid"
 
 GMap = require "./gmap.coffee"
+DefaultData = require "./defaultData.coffee"
 
-Mousetrap = require "br-mousetrap"
+Firebase = require "firebase"
+firebase = new Firebase "https://scene.firebaseio.com"
 
-_m = require("mediator-js").Mediator
 
-mediator = new _m()
 
-data = require("./defaultData.coffee").haight
-
-moment = require "moment"
 
 EventItem = React.createClass
     onClick: (e) ->
@@ -54,11 +55,11 @@ EventItem = React.createClass
                     <textarea className="editable bold" value={@props.event.name} onChange={@changeName} />
                     <textarea className="editable" value={@props.event.description} onChange={@changeDesc}  />
                     {if @props.eventNo > 0
-                        <img src="assets/glyphicons-214-up-arrow.png" className="upItemButton" onClick={@upEvent}/>
+                        <img src="/assets/glyphicons-214-up-arrow.png" className="upItemButton" onClick={@upEvent}/>
                     }
-                    <img src="assets/glyphicons-208-remove-2.png" className="deleteItemButton" onClick={@deleteEvent}/>
+                    <img src="/assets/glyphicons-208-remove-2.png" className="deleteItemButton" onClick={@deleteEvent}/>
                     {if @props.eventNo < (@props.countEvents - 1)
-                        <img src="assets/glyphicons-213-down-arrow.png" className="downItemButton" onClick={@downEvent}/>
+                        <img src="/assets/glyphicons-213-down-arrow.png" className="downItemButton" onClick={@downEvent}/>
                     }
                 </div>
             else
@@ -93,7 +94,7 @@ EventScroller = React.createClass
                     if @props.editable
                         <div id="addItemButton" onClick={@addEvent}>
                             <span className="helper"></span>
-                            <img id="addItemButtonImage" src="assets/glyphicons-433-plus.png" />
+                            <img id="addItemButtonImage" src="/assets/glyphicons-433-plus.png" />
                         </div>
                 }
             </div>
@@ -203,17 +204,31 @@ TimeLineWidget = React.createClass
 
 EventPanel = React.createClass
     getInitialState: ->
-        prevState = localStorage.getItem "sceneEventState"
-        if prevState?
-            console.log "Found Saved Data!"
-            console.log prevState
-            currentEvent: 0
-            editable: false
-            data: JSON.parse prevState
-        else
+        id = window.location.pathname
+        if id[0] is '/'
+            id = id[1..]
+        if id isnt ''
+            firebase.child("stories").child(id).on "value", (story) =>
+                newStory = story.val()
+                if newStory? and not _.isEqual @state.data, newStory
+                    @setState
+                        data: newStory
+                        last: newStory
             currentEvent: 0
             editable: false
             data: _.cloneDeep @props.defaultData
+        else
+            prevState = localStorage.getItem "sceneEventState"
+            if prevState?
+                console.log "Found Saved Data!"
+                console.log prevState
+                currentEvent: 0
+                editable: false
+                data: JSON.parse prevState
+            else
+                currentEvent: 0
+                editable: false
+                data: _.cloneDeep @props.defaultData
 
     componentDidMount: ->
         mediator.subscribe "setEvent", @setEvent
@@ -233,10 +248,18 @@ EventPanel = React.createClass
         Mousetrap.unbind ['down', 'right']
         Mousetrap.unbind ['up', 'left']
 
-    componentWillUpdate: ->
+    componentWillUpdate: (nextProps, nextState) ->
         jsonState = JSON.stringify @state.data
         console.log jsonState
-        localStorage.setItem "sceneEventState", jsonState
+
+        id = window.location.pathname
+        if id[0] is '/'
+            id = id[1..]
+        if id isnt ''
+            if not _.isEqual nextState.last, nextState.data
+                firebase.child("stories").child(id).set nextState.data
+        else
+            localStorage.setItem "sceneEventState", jsonState
 
     boundEvent: (eventNo, data) ->
         if eventNo < 0
@@ -291,13 +314,20 @@ EventPanel = React.createClass
             data: newData
             currentEvent: newData.length - 1
 
+    # share: ->
+    #     console.log @state.data
+    #     u = uuid.v4()
+    #     stories = firebase.child "stories"
+    #     currentStory = stories.child u
+    #     currentStory.set @state.data
+
     toggleEditable: ->
         @setState
             editable: not @state.editable
 
     render: ->
         editText = if @state.editable then "done" else "edit"
-        image = "assets/glyphicons-#{if @state.editable then "207-ok-2" else "31-pencil"}.png"
+        image = "/assets/glyphicons-#{if @state.editable then "207-ok-2" else "31-pencil"}.png"
         <div className="EventPanel">
             <TimeLineWidget
                 events={@state.data}
@@ -322,9 +352,15 @@ EventPanel = React.createClass
                 <img id="toggleEditImage" src={image} />
             </div>
         </div>
+        # <div
+        #     id="shareButton"
+        #     onClick={@share}
+        # >
+        #     <img id="shareButtonImage" src="/assets/glyphicons-500-family.png" />
+        # </div>
 
 React.initializeTouchEvents true
 React.render(
-    <EventPanel defaultData={data} />
+    <EventPanel defaultData={DefaultData.default} />
     document.getElementById 'content'
 )
