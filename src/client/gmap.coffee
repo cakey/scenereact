@@ -120,7 +120,7 @@ Map = React.createClass
             marker.setMap null
             google.maps.event.clearListeners marker, 'dragend'
 
-        @state.markers = []
+        markers = []
 
         # add new markers
         points.forEach (point) =>

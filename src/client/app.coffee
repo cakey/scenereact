@@ -248,18 +248,18 @@ EventPanel = React.createClass
         Mousetrap.unbind ['down', 'right']
         Mousetrap.unbind ['up', 'left']
 
-    componentWillUpdate: (nextProps, nextState) ->
-        jsonState = JSON.stringify @state.data
-        console.log jsonState
-
+    componentDidUpdate: ->
+        # Call firebase here to avoid a race condition
+        # Where firebase triggers on() before state is updated and so
+        # render has stale data.
         id = window.location.pathname
         if id[0] is '/'
             id = id[1..]
         if id isnt ''
-            if not _.isEqual nextState.last, nextState.data
-                firebase.child("stories").child(id).set nextState.data
+            if not _.isEqual @state.last, @state.data
+                firebase.child("stories").child(id).set @state.data
         else
-            localStorage.setItem "sceneEventState", jsonState
+            localStorage.setItem "sceneEventState", JSON.stringify @state.data
 
     boundEvent: (eventNo, data) ->
         if eventNo < 0
@@ -276,9 +276,10 @@ EventPanel = React.createClass
     deleteEvent: (eventNo) ->
         newData = _.cloneDeep @state.data
         newData.splice eventNo, 1
+        newCurrentEvent = @boundEvent eventNo, newData
         @setState
             data: newData
-            currentEvent: @boundEvent eventNo, newData
+            currentEvent: newCurrentEvent
 
     updateEvent: (eventNo, obj) ->
         if not eventNo?
