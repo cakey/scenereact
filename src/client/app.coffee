@@ -310,10 +310,10 @@ EventPanel = React.createClass
         newEvent.name = "Copy of #{@state.data[@state.currentEvent]?.name}"
         newEvent.description = "Describe me!"
         newData = _.cloneDeep @state.data
-        newData.push newEvent
+        newData.splice (@state.currentEvent + 1), 0, newEvent
         @setState
             data: newData
-            currentEvent: newData.length - 1
+            currentEvent: @state.currentEvent + 1
 
     # share: ->
     #     console.log @state.data
